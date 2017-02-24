@@ -1,4 +1,14 @@
 require 'rubygems'
-require 'trakerr'
+require_relative 'trakerr/lib/trakerr'
 
-testApp = Trakerr::TrakerrClient.new("sdssd", "http://192.168.0.117:3000/api/v1")
+def main()
+    testApp = Trakerr::TrakerrClient.new("a56a68537730468def34067d0df7943f17815001900144", "1.0", "development")
+    begin
+        raise ArgumentError
+    rescue Exception => e
+        testApp.CreateError("Error", "Test", "TestBug", e)
+    end
+end
+
+main
+

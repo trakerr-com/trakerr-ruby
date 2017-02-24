@@ -1,12 +1,11 @@
-
-require "trakerr_client"
+require_relative "event_trace_builder"
+require_relative "trakerr_client"
 require "Socket"
 require "date"
 
 module Trakerr
   class TrakerrClient
     def initialize(apiKey,
-                   url= nil,
                    contextAppVersion = "1.0",
                    contextEnvName = "development",
                    contextEnvVersion = nil,
@@ -16,7 +15,8 @@ module Trakerr
                    contextAppBrowser= nil,
                    contextAppBrowserVersion= nil,
                    contextDataCenter= nil,
-                   contextDataCenterRegion= nil)
+                   contextDataCenterRegion= nil,
+                    url= nil)
       default_config = Trakerr::Configuration.default
       default_config.base_path = url || default_config.base_path
       @apiKey = apiKey
@@ -39,8 +39,14 @@ module Trakerr
       return app_event_new
     end
 
+    def CreateError(classification = "Error", eventType = "unknown", eventMessage = "unknown", err)
+      app_event_new = AppEvent.new({classification: classification, eventType: eventType, eventMessage: eventMessage})
+      app_event_new.event_stacktrace = EventTraceBuilder.get_stacktrace(err)
+      return app_event_new
+    end
+
     def SendEvent(appEvent)
-      return @events_api.events_post(appEvent)
+      return @events_api.events_post(FillDefaults(appEvent))
     end
 
     def FillDefaults(appEvent)
