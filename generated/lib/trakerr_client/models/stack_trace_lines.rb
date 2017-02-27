@@ -25,7 +25,7 @@ require 'date'
 
 module Trakerr
 
-  class StackTraceLines
+  class StackTraceLines < Array
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map

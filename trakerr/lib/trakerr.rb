@@ -1,6 +1,6 @@
-require_relative "event_trace_builder"
-require_relative "trakerr_client"
-require "Socket"
+require "event_trace_builder"
+require "trakerr_client"
+require "socket"
 require "date"
 
 module Trakerr
