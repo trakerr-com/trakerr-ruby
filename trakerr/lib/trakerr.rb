@@ -16,15 +16,15 @@ module Trakerr
                    contextAppBrowserVersion= nil,
                    contextDataCenter= nil,
                    contextDataCenterRegion= nil,
-                    url= nil)
+                   url= nil)
       default_config = Trakerr::Configuration.default
       default_config.base_path = url || default_config.base_path
       @apiKey = apiKey
       @contextAppVersion = contextAppVersion
-      @contextEnvHostname = contextEnvHostname || Socket.gethostname
-      @contextAppOS = contextAppOS || RUBY_PLATFORM
       @contextEnvName = contextEnvName
       @contextEnvVersion = contextEnvVersion
+      @contextEnvHostname = contextEnvHostname || Socket.gethostname
+      @contextAppOS = contextAppOS || RbConfig::CONFIG["target_os"]
       @contextAppOSVersion = contextAppOSVersion
       @contextAppBrowser = contextAppBrowser
       @contextAppBrowserVersion = contextAppBrowserVersion
@@ -39,14 +39,20 @@ module Trakerr
       return app_event_new
     end
 
-    def CreateError(classification = "Error", eventType = "unknown", eventMessage = "unknown", err)
+    def CreateError(err, classification = "Error", eventType = "unknown", eventMessage = "unknown")
+      if eventType == nil || eventType == "unknown"
+        eventType = err.class.name
+      end
+      if eventMessage == nil || eventMessage == "unknown"
+        eventMessage = err.message
+      end
       app_event_new = AppEvent.new({classification: classification, eventType: eventType, eventMessage: eventMessage})
       app_event_new.event_stacktrace = EventTraceBuilder.get_stacktrace(err)
       return app_event_new
     end
 
     def SendEvent(appEvent)
-      return @events_api.events_post(FillDefaults(appEvent))
+      @events_api.events_post(FillDefaults(appEvent))
     end
 
     def FillDefaults(appEvent)
@@ -61,11 +67,13 @@ module Trakerr
       appEvent.context_app_os = appEvent.context_app_os || @contextAppOS
       appEvent.context_app_os_version = appEvent.context_app_os_version || @contextAppOSVersion
 
-      appEvent.context_data_center = appEvent.context_data_center || @contextDataCenter
+      appEvent.context_app_browser = appEvent.context_app_browser || @contextAppBrowser
+      appEvent.context_app_browser_version = appEvent.context_app_browser_version || @contextAppBrowserVersion
 
+      appEvent.context_data_center = appEvent.context_data_center || @contextDataCenter
       appEvent.context_data_center_region = appEvent.context_data_center_region || @contextDataCenterRegion
 
-      appEvent.eventTime = p DateTime.now.strftime('%Q')
+      appEvent.event_time = DateTime.now.strftime("%Q").to_i
       return appEvent
     end
 
