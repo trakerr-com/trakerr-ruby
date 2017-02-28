@@ -21,11 +21,44 @@ module Trakerr
       default_config.base_path = url || default_config.base_path
       @apiKey = apiKey
       @contextAppVersion = contextAppVersion
-      @contextEnvName = contextEnvName
-      @contextEnvVersion = contextEnvVersion
+      @contextEnvName = contextEnvName || RbConfig::CONFIG["RUBY_BASE_NAME"]
+      @contextEnvVersion = contextEnvVersion || RbConfig::CONFIG["ruby_version"]
       @contextEnvHostname = contextEnvHostname || Socket.gethostname
-      @contextAppOS = contextAppOS || RbConfig::CONFIG["target_os"]
-      @contextAppOSVersion = contextAppOSVersion
+
+      @contextAppOS = contextAppOS
+
+      if contextAppOS == nil 
+        
+        host_os = RbConfig::CONFIG['host_os']
+        case host_os
+          when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+            text = `systeminfo`
+
+            @contextAppOS = GetTextFromLine(text, "OS Name:", "\n")
+				    version = GetTextFromLine(text, "OS Version:", "\n")
+            @contextAppOSVersion = contextAppOSVersion || version.split[0] if version != nil
+
+            
+          when /darwin|mac os/
+            text = `system_profiler SPSoftwareDataType`
+
+            @contextAppOS = GetTextFromLine(text, "System Version:", "(")
+				    @contextAppOSVersion = contextAppOSVersion || GetTextFromLine(text, "Kernel Version:", "\n")
+            
+          when /linux/, /solaris|bsd/
+            #Uname -s and -r
+            @contextAppOS = `uname -s`.chomp.strip
+            @contextAppOSVersion = contextAppOSVersion || `uname -r`.chomp.strip
+        end
+      end
+
+      if @contextAppOS == nil 
+        @contextAppOS = RbConfig::CONFIG["target_os"]
+      end
+      if @contextAppOSVersion == nil
+        @contextAppOSVersion = RbConfig::CONFIG['host_os']
+      end
+      
       @contextAppBrowser = contextAppBrowser
       @contextAppBrowserVersion = contextAppBrowserVersion
       @contextDataCenter = contextDataCenter
@@ -77,5 +110,18 @@ module Trakerr
       return appEvent
     end
 
+    private
+      def GetTextFromLine(text, prefix, suffix)
+        raise ArgumentError, "All arguments are expected strings." unless text.is_a? String and prefix.is_a? String and suffix.is_a? String
+      
+        prefixindex = text.index(prefix)
+        return nil if prefixindex == nil
+        prefixindex = prefixindex + prefix.length
+
+        suffixindex = text.index (suffix)
+        return nil if suffixindex == nil
+
+        text[prefixindex...suffixindex]
+      end
   end
 end
