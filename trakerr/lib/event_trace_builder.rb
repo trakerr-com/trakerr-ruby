@@ -7,7 +7,7 @@ module Trakerr
     def self.get_stacktrace(exc)
       raise ArgumentError, "get_stacktrace expects an exception instance." unless exc.is_a? Exception
 
-      strace = Trakerr::Stacktrace.New
+      strace = Trakerr::Stacktrace.new
       add_stack_trace(strace, exc)
       return strace
 
@@ -16,7 +16,7 @@ module Trakerr
     def self.add_stack_trace(strace, exc)
       raise ArgumentError, "add_stack_trace did not get passed in the correct arguments" unless exc.is_a? Exception and strace.instance_of? Stacktrace
 
-      newtrace = Trakerr::InnerStackTrace.New
+      newtrace = Trakerr::InnerStackTrace.new
 
       newtrace.type = exc.class.name
       newtrace.message = exc.message
