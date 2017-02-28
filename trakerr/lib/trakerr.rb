@@ -34,19 +34,19 @@ module Trakerr
           when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
             text = `systeminfo`
 
-            @contextAppOS = GetTextFromLine(text, "OS Name:", "\n")
+            @contextAppOS = GetTextFromLine(text, "OS Name:", "\n").chomp.strip
 				    version = GetTextFromLine(text, "OS Version:", "\n")
-            @contextAppOSVersion = contextAppOSVersion || version.split[0] if version != nil
+            @contextAppOSVersion = contextAppOSVersion || version.split[0].chomp.strip if version != nil
 
             
           when /darwin|mac os/
             text = `system_profiler SPSoftwareDataType`
 
-            @contextAppOS = GetTextFromLine(text, "System Version:", "(")
-				    @contextAppOSVersion = contextAppOSVersion || GetTextFromLine(text, "Kernel Version:", "\n")
+            @contextAppOS = GetTextFromLine(text, "System Version:", "(").chomp.strip
+				    @contextAppOSVersion = contextAppOSVersion || GetTextFromLine(text, "Kernel Version:", "\n").chomp.strip
             
           when /linux/, /solaris|bsd/
-            #Uname -s and -r
+            #uname -s and -r
             @contextAppOS = `uname -s`.chomp.strip
             @contextAppOSVersion = contextAppOSVersion || `uname -r`.chomp.strip
         end
