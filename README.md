@@ -8,7 +8,7 @@ You will need your API key to send events to trakerr.
 Ruby 1.9.3+
 
 ## Installation & Usage
-### pip install
+### gem install
 
 Install [bundler](http://bundler.io/) and then you can issue this command to get the latest version
 ```sh
