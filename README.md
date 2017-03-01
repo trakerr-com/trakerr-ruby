@@ -5,7 +5,7 @@ You will need your API key to send events to trakerr.
 
 ## Requirements.
 
-Python 2.7 and 3.4+
+Ruby 1.9.3+
 
 ## Installation & Usage
 ### pip install
