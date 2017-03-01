@@ -17,7 +17,7 @@ If you are on windows, you may also need to install curl. Follow the instruction
 
 Then import the package:
 ```ruby
-Require 'trakerr/lib/trakerr'
+require 'trakerr/lib/trakerr'
 ```
 
 ## Getting Started
