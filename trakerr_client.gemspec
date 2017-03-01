@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/swagger-api/swagger-codegen"
   s.summary     = "Trakerr API Ruby Gem"
   s.description = "Get your application events and errors to Trakerr via the *Trakerr API*."
-  s.license     = "Apache 2.0"
+  s.license     = "Apache-2.0"
 
   s.add_runtime_dependency 'typhoeus', '~> 1.0', '>= 1.0.1'
   s.add_runtime_dependency 'json', '~> 1.8', '>= 1.8.3'
@@ -49,8 +49,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'autotest-growl', '~> 0.2', '>= 0.2.16'
   s.add_development_dependency 'autotest-fsevent', '~> 0.2', '>= 0.2.11'
 
-  s.files         = `find *`.split("\n").uniq.sort.select{|f| !f.empty? }
-  s.test_files    = `find generated/spec/*`.split("\n")
+  #s.files         = `find *`.split("\n").uniq.sort.select{|f| !f.empty? }
+  s.files         = `git ls-files`.split("\n").delete_if {|file| file.include? "spec"}
+  s.test_files    = `git ls-files`.split("\n").delete_if {|file| not file.include? "spec"}
   s.executables   = []
   s.require_paths = ["generated/lib", "trakerr/lib"]
 end

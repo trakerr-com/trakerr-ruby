@@ -34,9 +34,14 @@ module Trakerr
           when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
             text = `systeminfo`
 
-            @contextAppOS = GetTextFromLine(text, "OS Name:", "\n").chomp.strip
-				    version = GetTextFromLine(text, "OS Version:", "\n")
-            @contextAppOSVersion = contextAppOSVersion || version.split[0].chomp.strip if version != nil
+            @contextAppOS = GetTextFromLine(text, "OS Name:", "\n")
+            @contextAppOS.chomp! if @contextAppOS != nil
+            @contextAppOS.strip! if @contextAppOS != nil
+
+				    version = GetTextFromLine(text, "OS Version:", "\n").split
+            version[0].chomp! if version != nil
+            version[0].strip! if version != nil
+            @contextAppOSVersion = contextAppOSVersion || version[0]
 
             
           when /darwin|mac os/
@@ -118,7 +123,7 @@ module Trakerr
         return nil if prefixindex == nil
         prefixindex = prefixindex + prefix.length
 
-        suffixindex = text.index (suffix)
+        suffixindex = text.index(suffix, prefixindex)
         return nil if suffixindex == nil
 
         text[prefixindex...suffixindex]
