@@ -10,10 +10,17 @@ Ruby 1.9.3+
 ## Installation & Usage
 ### pip install
 
+Install [bundler](http://bundler.io/) and then you can issue this command to get the latest version
 ```sh
-gem install
+gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
 ```
-If you are on windows, you may also need to install curl. Follow the instructions on the curl website for more information.
+If you are on windows, you may also need to install curl. Follow the instructions on the curl website for more information. You will also need git installed.
+
+You can
+```sh
+gem install trakerr_client
+```
+but it is not guaranteed to be the latest bleeding edge release.
 
 Then import the package:
 ```ruby
