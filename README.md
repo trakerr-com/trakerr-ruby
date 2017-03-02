@@ -6,21 +6,36 @@ You will need your API key to send events to trakerr.
 ## Requirements.
 
 Ruby 1.9.3+
+git 2.0+
 
 ## Installation & Usage
-### gem install
+### 1) Install git and curl
+You will need git for the gem to work properly. If you do not have it installed, we recomment installing it from your package manager. You can use your package manager to install it on unix based machines. For machines using apt (ex: Ubuntu)
 
-Install [bundler](http://bundler.io/) and then you can issue this command to get the latest version
+```bash
+apt install git
+```
+For machines using yum (ex: centOS)
+```bash
+yum install git
+```
+For Windows, or if you aren't using a package manager, visit https://git-scm.com/ and download and install it manually. Make sure it is added to your path (open your command prompt and type git --version. If it works, you're set.)
+
+
+If you are on Windows, you may also need to install curl. Follow the instructions on the curl website for more information. You will also need git installed.
+
+### 2) gem install
+
+Install [bundler](http://bundler.io/) and then you can issue this command to get the freshest version:
 ```sh
 gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
 ```
-If you are on windows, you may also need to install curl. Follow the instructions on the curl website for more information. You will also need git installed.
 
-You can
+You can also install from ruby gmes:
 ```sh
 gem install trakerr_client
 ```
-but it is not guaranteed to be the latest bleeding edge release.
+for the latest stable release.
 
 Then import the package:
 ```ruby
