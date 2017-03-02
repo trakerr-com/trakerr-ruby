@@ -57,7 +57,7 @@ You'll then need to initialize custom properties once you create the event. Note
 
 ```ruby
 def main()
-    testApp = Trakerr::TrakerrClient.new("a56a68537730468def34067d0df7943f17815001900144", "1.0", "development")
+    testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
     begin
         raise ArgumentError
     rescue Exception => e
