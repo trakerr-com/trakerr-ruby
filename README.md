@@ -22,7 +22,7 @@ yum install git
 For Windows, or if you aren't using a package manager, visit https://git-scm.com/ and download and install it manually. Make sure it is added to your path (open your command prompt and type git --version. If it works, you're set.)
 
 
-If you are on Windows, you may also need to install curl. Follow the instructions on the curl website for more information. You will also need git installed.
+If you are on Windows, you may also need to install curl. Follow the instructions on the curl website for more information.
 
 ### 2) gem install
 
