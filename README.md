@@ -47,11 +47,10 @@ require 'trakerr/lib/trakerr'
 Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in testmain.py.
 
 ### Sending Data
-You can send custom data as part of your error event if you need to. This circumvents the python handler. Add these imports:
+You can send custom data as part of your error event if you need to. This circumvents the python handler. Require the package:
 
 ```ruby
-from trakerr import TrakerrClient
-from trakerr_client.models import CustomData, CustomStringData
+require 'trakerr/lib/trakerr'
 ```
 
 You'll then need to initialize custom properties once you create the event. Note that `CreateError` and `CreateEvent` can be used to send any levels of error, including warnings, info and fatal. Look at the method signature for more information.
