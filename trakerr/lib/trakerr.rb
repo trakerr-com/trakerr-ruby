@@ -5,18 +5,41 @@ require "date"
 
 module Trakerr
   class TrakerrClient
+
+    ## ContextEnvVersion is the version of the CLI the program is run on.
+    attr_accessor :contextEnvVersion
+
+    ## ContextEnvHostname is hostname of the pc running the code.
+    attr_accessor :contextEnvHostname
+
+    ## ContextAppOS is the OS the program is running on.
+    attr_accessor :contextAppOS
+
+    ## ContextAppOSVersion is the version of the OS the code is running on.
+    attr_accessor :contextAppOSVersion
+
+    ## contextAppBrowser is optional MVC and ASP.net applications the browser name the application is running on.
+    attr_accessor :contextAppBrowser
+
+    ## contextAppBrowserVersion is optional for MVC and ASP.net applications the browser version the application is running on.
+    attr_accessor :contextAppBrowserVersion
+
+    ## ContextDatacenter is the optional datacenter the code may be running on.
+    attr_accessor :contextDataCenter
+
+    ## ContextDatacenterRegion is the optional datacenter region the code may be running on.
+    attr_accessor :contextDataCenterRegion
+
+    ##
+    #Initializes the TrakerrClient class.
+    #apiKey:String: Should be your API key string.
+    #contextAppVersion:String: Should be the version of your application.
+    #contextEnvName:String: Should be the deployment stage of your program.
+    ##
     def initialize(apiKey,
                    contextAppVersion = "1.0",
-                   contextEnvName = "development",
-                   contextEnvVersion = nil,
-                   contextEnvHostname= nil,
-                   contextAppOS= nil,
-                   contextAppOSVersion= nil,
-                   contextAppBrowser= nil,
-                   contextAppBrowserVersion= nil,
-                   contextDataCenter= nil,
-                   contextDataCenterRegion= nil,
-                   url= nil)
+                   contextEnvName = "development")
+
       default_config = Trakerr::Configuration.default
       default_config.base_path = url || default_config.base_path
       @apiKey = apiKey
@@ -72,27 +95,45 @@ module Trakerr
       @events_api = Trakerr::EventsApi.new(api_client)
     end
 
-    def CreateAppEvent(classification = "Error", eventType = "unknown", eventMessage = "unknown")
+    ##
+    #Creates a new AppEvent and returns it with a stacktrace if err is an exception object.
+    #If passed false, it returns an AppEvent without a stacktrace.
+    #RETURNS: An AppEvent instance with the default event information.
+    #err:Exception: The exception that is captured or rescued, or false if you don't need a stacktrace.
+    #classification:String: The level of your event. Info, Warning, Error, Fatal. Defaults to Error.
+    #eventType:string: String representation of the type of error.
+    #Defaults to err.class.name if err is an exception, unknown if not.
+    #eventMessage:String: String representation of the message of the error.
+    #Defaults to err.message if err is an exception, unknown if not.
+    ##
+    def CreateAppEvent(err, classification = "Error", eventType = "unknown", eventMessage = "unknown")
+      if err != false
+        raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
+        if eventType == nil || eventType == "unknown"
+          eventType = err.class.name
+        end
+        if eventMessage == nil || eventMessage == "unknown"
+          eventMessage = err.message
+        end
+      end
       app_event_new = AppEvent.new({classification: classification, eventType: eventType, eventMessage: eventMessage})
+      app_event_new.event_stacktrace = EventTraceBuilder.get_stacktrace(err) if err != false
       return app_event_new
     end
 
-    def CreateError(err, classification = "Error", eventType = "unknown", eventMessage = "unknown")
-      if eventType == nil || eventType == "unknown"
-        eventType = err.class.name
-      end
-      if eventMessage == nil || eventMessage == "unknown"
-        eventMessage = err.message
-      end
-      app_event_new = AppEvent.new({classification: classification, eventType: eventType, eventMessage: eventMessage})
-      app_event_new.event_stacktrace = EventTraceBuilder.get_stacktrace(err)
-      return app_event_new
-    end
-
+    ##
+    #Sends the given AppEvent to Trakerr
+    #appEvent:AppEvent: The AppEvent to send.
+    ##
     def SendEvent(appEvent)
       @events_api.events_post(FillDefaults(appEvent))
     end
 
+    ##
+    #Populates the given AppEvent with the client level default values
+    #RETURNS: The AppEvent with Defaults filled.
+    #appEvent:AppEvent: The AppEvent to fill.
+    ##
     def FillDefaults(appEvent)
       appEvent.api_key = appEvent.api_key || @apiKey
 
@@ -116,6 +157,14 @@ module Trakerr
     end
 
     private
+      ##
+      #Used for parsing large strings. Gets the text in between a prefix string and a suffix string.
+      #Currently used to parse responses from shell commands on OS.
+      #RETURNS: The String from text between prefix and suffix or nil if not found or errors occur.
+      #text:String: The text to search in.
+      #prefix:String: The prefix string to start getting the text after
+      #suffix:String: The suffix string to find the ending index for.
+      ##
       def GetTextFromLine(text, prefix, suffix)
         raise ArgumentError, "All arguments are expected strings." unless text.is_a? String and prefix.is_a? String and suffix.is_a? String
       

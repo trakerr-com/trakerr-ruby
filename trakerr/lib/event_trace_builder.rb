@@ -4,6 +4,11 @@ require "trakerr_client"
 module Trakerr
   class EventTraceBuilder
 
+    ##
+    #Gets the stactrace from the exception instance passed in.
+    #RETURNS: A Stacktrace object that contains the trace of the exception passed in.
+    #exc:Exception: The exception caught or rescued.
+    ##
     def self.get_stacktrace(exc)
       raise ArgumentError, "get_stacktrace expects an exception instance." unless exc.is_a? Exception
 
@@ -13,55 +18,72 @@ module Trakerr
 
     end
 
-    def self.add_stack_trace(strace, exc)
-      raise ArgumentError, "add_stack_trace did not get passed in the correct arguments" unless exc.is_a? Exception and strace.instance_of? Stacktrace
-
-      newtrace = Trakerr::InnerStackTrace.new
-
-      newtrace.type = exc.class.name
-      newtrace.message = exc.message
-      newtrace.trace_lines = get_event_tracelines(best_regexp_for(exc), exc.backtrace)
-      strace.push(newtrace)
-    end
-
-    def self.get_event_tracelines(regex, errarray)
-      raise ArgumentError, "errarray should be an iterable object." unless errarray.respond_to?('each')
-
-      stlines = Trakerr::StackTraceLines.new
-
-      errarray.each {|line| 
-      stline = Trakerr::StackTraceLine.new
-      match = parse_stacktrace(regex, line)
-      stline.file, stline.line, stline.function = match[:file], match[:line], match[:function]
-
-      stlines.push(stline)
-      }
-      return stlines
-    end
-
-    def self.parse_stacktrace(regex, line)
-      raise ArgumentError, "line should be a string." unless line.is_a? String
-
-      match = regex.match(line)
-      return match if match
-
-      raise RegexpError, "line does not fit any of the supported stacktraces."
-    end
-
-    def self.best_regexp_for(exc)
-      #add error check
-      if defined?(Java::JavaLang::Throwable) && exc.is_a?(Java::JavaLang::Throwable)
-        @@JAVA
-      elsif defined?(OCIError) && exc.is_a?(OCIError)
-        @@OCI
-      #elsif execjs_exception?(exception)
-        # Patterns::EXECJS disabled pending more complex test
-      else
-        @@RUBY
-      end
-    end
-
     private
+
+      ##
+      #Adds a InnerStackTrace to the Stacktrace object (which is a collection)
+      #strace:Stacktrace: The Stacktrace object to append the latest InnerStackTrace to.
+      #exc:Exception: The exception caught or rescued.
+      ##
+      def self.add_stack_trace(strace, exc)
+        raise ArgumentError, "add_stack_trace did not get passed in the correct arguments" unless exc.is_a? Exception and strace.instance_of? Stacktrace
+
+        newtrace = Trakerr::InnerStackTrace.new
+
+        newtrace.type = exc.class.name
+        newtrace.message = exc.message
+        newtrace.trace_lines = get_event_tracelines(best_regexp_for(exc), exc.backtrace)
+        strace.push(newtrace)
+      end
+
+      ##
+      #Formats and returns a StackTraceLines object that holds the current stacktrace from the error.
+      #RETURNS: A StackTraceLines object that contains the parsed traceback.
+      #regex:RegularExpression: The regular expression to parse the stacktrace text with.
+      #errarray:String[]: An array of strings which each of which is a StackTrace string line.
+      ##
+      def self.get_event_tracelines(regex, errarray)
+        raise ArgumentError, "errarray should be an iterable object." unless errarray.respond_to?('each')
+
+        stlines = Trakerr::StackTraceLines.new
+
+        errarray.each {|line| 
+        stline = Trakerr::StackTraceLine.new
+        match = parse_stacktrace(regex, line)
+        stline.file, stline.line, stline.function = match[:file], match[:line], match[:function]
+
+        stlines.push(stline)
+        }
+        return stlines
+      end
+
+      ##
+      #Parses each given line by the regex
+      #RETURNS: A match object with the capture groups file function and line set.
+      #regex:RegularExpression: The regular expression to parse the stacktrace text with.
+      #line:String: A string with the traceline to parce
+      ##
+      def self.parse_stacktrace(regex, line)
+        raise ArgumentError, "line should be a string." unless line.is_a? String
+
+        match = regex.match(line)
+        return match if match
+
+        raise RegexpError, "line does not fit any of the supported stacktraces." #TODO: Error handle this?
+      end
+
+      def self.best_regexp_for(exc)
+        #add error check
+        if defined?(Java::JavaLang::Throwable) && exc.is_a?(Java::JavaLang::Throwable)
+         @@JAVA
+        elsif defined?(OCIError) && exc.is_a?(OCIError)
+          @@OCI
+        #elsif execjs_exception?(exception)
+          # Patterns::EXECJS disabled pending more complex test
+        else
+          @@RUBY
+        end
+      end
 
       ##
       # @return [Regexp] the pattern that matches standard Ruby stack frames,
