@@ -29,10 +29,13 @@ module Trakerr
     # API key generated for the application
     attr_accessor :api_key
 
-    # one of 'debug','info','warning','error' or a custom string
+    # (optional) Logging level, one of 'debug','info','warning','error', 'fatal', defaults to 'error'
+    attr_accessor :log_level
+
+    # (optional) one of 'error' or a custom string for non-errors, defaults to 'error'
     attr_accessor :classification
 
-    # type or event or error (eg. NullPointerException)
+    # type of the event or error (eg. NullPointerException)
     attr_accessor :event_type
 
     # message containing details of the event or error
@@ -52,8 +55,14 @@ module Trakerr
     # (optional) application version information
     attr_accessor :context_app_version
 
-    # (optional) one of 'development','staging','production' or a custom string
+    # (optional) deployment stage, one of 'development','staging','production' or a custom string
+    attr_accessor :deployment_stage
+
+    # (optional) environment name (like 'cpython' or 'ironpython' etc.)
     attr_accessor :context_env_name
+
+    # (optional) language (like 'python' or 'c#' etc.)
+    attr_accessor :context_env_language
 
     # (optional) version of environment
     attr_accessor :context_env_version
@@ -83,11 +92,33 @@ module Trakerr
 
     attr_accessor :custom_segments
 
+    class EnumAttributeValidator
+      attr_reader :datatype
+      attr_reader :allowable_values
+
+      def initialize(datatype, allowable_values)
+        @allowable_values = allowable_values.map do |value|
+          case datatype.to_s
+          when /Integer/i
+            value.to_i
+          when /Float/i
+            value.to_f
+          else
+            value
+          end
+        end
+      end
+
+      def valid?(value)
+        !value || allowable_values.include?(value)
+      end
+    end
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
         :'api_key' => :'apiKey',
+        :'log_level' => :'logLevel',
         :'classification' => :'classification',
         :'event_type' => :'eventType',
         :'event_message' => :'eventMessage',
@@ -96,7 +127,9 @@ module Trakerr
         :'event_user' => :'eventUser',
         :'event_session' => :'eventSession',
         :'context_app_version' => :'contextAppVersion',
+        :'deployment_stage' => :'deploymentStage',
         :'context_env_name' => :'contextEnvName',
+        :'context_env_language' => :'contextEnvLanguage',
         :'context_env_version' => :'contextEnvVersion',
         :'context_env_hostname' => :'contextEnvHostname',
         :'context_app_browser' => :'contextAppBrowser',
@@ -114,6 +147,7 @@ module Trakerr
     def self.swagger_types
       {
         :'api_key' => :'String',
+        :'log_level' => :'String',
         :'classification' => :'String',
         :'event_type' => :'String',
         :'event_message' => :'String',
@@ -122,7 +156,9 @@ module Trakerr
         :'event_user' => :'String',
         :'event_session' => :'String',
         :'context_app_version' => :'String',
+        :'deployment_stage' => :'String',
         :'context_env_name' => :'String',
+        :'context_env_language' => :'String',
         :'context_env_version' => :'String',
         :'context_env_hostname' => :'String',
         :'context_app_browser' => :'String',
@@ -146,6 +182,10 @@ module Trakerr
 
       if attributes.has_key?(:'apiKey')
         self.api_key = attributes[:'apiKey']
+      end
+
+      if attributes.has_key?(:'logLevel')
+        self.log_level = attributes[:'logLevel']
       end
 
       if attributes.has_key?(:'classification')
@@ -180,8 +220,16 @@ module Trakerr
         self.context_app_version = attributes[:'contextAppVersion']
       end
 
+      if attributes.has_key?(:'deploymentStage')
+        self.deployment_stage = attributes[:'deploymentStage']
+      end
+
       if attributes.has_key?(:'contextEnvName')
         self.context_env_name = attributes[:'contextEnvName']
+      end
+
+      if attributes.has_key?(:'contextEnvLanguage')
+        self.context_env_language = attributes[:'contextEnvLanguage']
       end
 
       if attributes.has_key?(:'contextEnvVersion')
@@ -237,10 +285,22 @@ module Trakerr
     # @return true if the model is valid
     def valid?
       return false if @api_key.nil?
+      log_level_validator = EnumAttributeValidator.new('String', ["debug", "info", "warning", "error", "fatal"])
+      return false unless log_level_validator.valid?(@log_level)
       return false if @classification.nil?
       return false if @event_type.nil?
       return false if @event_message.nil?
       return true
+    end
+
+    # Custom attribute writer method checking allowed values (enum).
+    # @param [Object] log_level Object to be assigned
+    def log_level=(log_level)
+      validator = EnumAttributeValidator.new('String', ["debug", "info", "warning", "error", "fatal"])
+      unless validator.valid?(log_level)
+        fail ArgumentError, "invalid value for 'log_level', must be one of #{validator.allowable_values}."
+      end
+      @log_level = log_level
     end
 
     # Checks equality by comparing each attribute.
@@ -249,6 +309,7 @@ module Trakerr
       return true if self.equal?(o)
       self.class == o.class &&
           api_key == o.api_key &&
+          log_level == o.log_level &&
           classification == o.classification &&
           event_type == o.event_type &&
           event_message == o.event_message &&
@@ -257,7 +318,9 @@ module Trakerr
           event_user == o.event_user &&
           event_session == o.event_session &&
           context_app_version == o.context_app_version &&
+          deployment_stage == o.deployment_stage &&
           context_env_name == o.context_env_name &&
+          context_env_language == o.context_env_language &&
           context_env_version == o.context_env_version &&
           context_env_hostname == o.context_env_hostname &&
           context_app_browser == o.context_app_browser &&
@@ -279,7 +342,7 @@ module Trakerr
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [api_key, classification, event_type, event_message, event_time, event_stacktrace, event_user, event_session, context_app_version, context_env_name, context_env_version, context_env_hostname, context_app_browser, context_app_browser_version, context_app_os, context_app_os_version, context_data_center, context_data_center_region, custom_properties, custom_segments].hash
+      [api_key, log_level, classification, event_type, event_message, event_time, event_stacktrace, event_user, event_session, context_app_version, deployment_stage, context_env_name, context_env_language, context_env_version, context_env_hostname, context_app_browser, context_app_browser_version, context_app_os, context_app_os_version, context_data_center, context_data_center_region, custom_properties, custom_segments].hash
     end
 
     # Builds the object from hash
