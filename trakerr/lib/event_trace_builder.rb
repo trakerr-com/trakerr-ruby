@@ -15,7 +15,6 @@ module Trakerr
       strace = Trakerr::Stacktrace.new
       add_stack_trace(strace, exc)
       return strace
-
     end
 
     private
