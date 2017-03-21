@@ -15,10 +15,12 @@ You will need git for the gem to work properly. If you do not have it installed,
 ```bash
 apt install git
 ```
+
 For machines using yum (ex: centOS)
 ```bash
 yum install git
 ```
+
 For Windows, or if you aren't using a package manager, visit https://git-scm.com/ and download and install it manually. Make sure it is added to your path (open your command prompt and type git --version. If it works, you're set.)
 
 
@@ -31,7 +33,7 @@ Install [bundler](http://bundler.io/) and then you can issue this command to get
 gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
 ```
 
-You can also install from ruby gmes:
+You can also install from ruby gems:
 ```sh
 gem install trakerr_client
 ```
