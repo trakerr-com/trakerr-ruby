@@ -6,7 +6,22 @@ require "date"
 module Trakerr
   class TrakerrClient
 
-    ## ContextEnvVersion is the version of the CLI the program is run on.
+    ##API Key
+    attr_accessor :apiKey
+
+    ##App Version of the client the API is tying into.
+    attr_accessor :contextAppVersion
+
+    ##Deployment stage of the codebade the API is tying into.
+    attr_accessor :contextDeploymentStage
+
+    ##String name of the language being used.
+    attr_accessor :contextEnvLanguage
+
+    ##The name of the interpreter
+    attr_accessor :contextEnvName
+
+    ## ContextEnvVersion is the version of the interpreter the program is run on.
     attr_accessor :contextEnvVersion
 
     ## ContextEnvHostname is hostname of the pc running the code.
@@ -38,46 +53,52 @@ module Trakerr
     ##
     def initialize(apiKey,
                    contextAppVersion = "1.0",
-                   contextEnvName = "development")
+                   contextDeploymentStage = "development")
 
       default_config = Trakerr::Configuration.default
-      default_config.base_path = url || default_config.base_path
+      default_config.base_path = default_config.base_path
+
       @apiKey = apiKey
       @contextAppVersion = contextAppVersion
-      @contextEnvName = contextEnvName || RbConfig::CONFIG["RUBY_BASE_NAME"]
-      @contextEnvVersion = contextEnvVersion || RbConfig::CONFIG["ruby_version"]
-      @contextEnvHostname = contextEnvHostname || Socket.gethostname
+      @contextDeploymentStage = contextDeploymentStage
 
-      @contextAppOS = contextAppOS
+      @contextEnvLanguage = "Ruby"
+      
+      if RUBY_PLATFORM == "java"
+        @contextEnvName = "jruby"
+        @contextEnvVersion = JRUBY_VERSION
+      else
+        @contextEnvName = "ruby"
+        @contextEnvVersion = RUBY_VERSION
+      end
 
-      if contextAppOS == nil 
+      @contextEnvHostname = Socket.gethostname
         
-        host_os = RbConfig::CONFIG['host_os']
-        case host_os
-          when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
-            text = `systeminfo`
+      host_os = RbConfig::CONFIG['host_os']
+      case host_os
+        when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+          text = `systeminfo`
 
-            @contextAppOS = GetTextFromLine(text, "OS Name:", "\n")
-            @contextAppOS.chomp! if @contextAppOS != nil
-            @contextAppOS.strip! if @contextAppOS != nil
+          @contextAppOS = GetTextFromLine(text, "OS Name:", "\n")
+          @contextAppOS.chomp! if @contextAppOS != nil
+          @contextAppOS.strip! if @contextAppOS != nil
 
-				    version = GetTextFromLine(text, "OS Version:", "\n").split
-            version[0].chomp! if version != nil
-            version[0].strip! if version != nil
-            @contextAppOSVersion = contextAppOSVersion || version[0]
+				  version = GetTextFromLine(text, "OS Version:", "\n").split
+          version[0].chomp! if version != nil
+          version[0].strip! if version != nil
+          @contextAppOSVersion = contextAppOSVersion || version[0]
 
             
-          when /darwin|mac os/
-            text = `system_profiler SPSoftwareDataType`
+        when /darwin|mac os/
+          text = `system_profiler SPSoftwareDataType`
 
-            @contextAppOS = GetTextFromLine(text, "System Version:", "(").chomp.strip
-				    @contextAppOSVersion = contextAppOSVersion || GetTextFromLine(text, "Kernel Version:", "\n").chomp.strip
+          @contextAppOS = GetTextFromLine(text, "System Version:", "(").chomp.strip
+				  @contextAppOSVersion = contextAppOSVersion || GetTextFromLine(text, "Kernel Version:", "\n").chomp.strip
             
-          when /linux/, /solaris|bsd/
-            #uname -s and -r
-            @contextAppOS = `uname -s`.chomp.strip
-            @contextAppOSVersion = contextAppOSVersion || `uname -r`.chomp.strip
-        end
+        when /linux/, /solaris|bsd/
+          #uname -s and -r
+          @contextAppOS = `uname -s`.chomp.strip
+          @contextAppOSVersion = contextAppOSVersion || `uname -r`.chomp.strip
       end
 
       if @contextAppOS == nil 
@@ -100,24 +121,30 @@ module Trakerr
     #If passed false, it returns an AppEvent without a stacktrace.
     #RETURNS: An AppEvent instance with the default event information.
     #err:Exception: The exception that is captured or rescued, or false if you don't need a stacktrace.
-    #classification:String: The level of your event. Info, Warning, Error, Fatal. Defaults to Error.
+    #log_level:String: Logging level, one of 'debug','info','warning','error', 'fatal', defaults to 'error'.
+    #Will argument error if passed another value.
+    #classification:String: Optional extra descriptor string. Will default to issue if not passed a value.
     #eventType:string: String representation of the type of error.
     #Defaults to err.class.name if err is an exception, unknown if not.
     #eventMessage:String: String representation of the message of the error.
     #Defaults to err.message if err is an exception, unknown if not.
     ##
-    def CreateAppEvent(err, classification = "Error", eventType = "unknown", eventMessage = "unknown")
+    def CreateAppEvent(err, log_level="Error", classification = "issue", eventType = "unknown", eventMessage = "unknown")
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
+
         if eventType == nil || eventType == "unknown"
           eventType = err.class.name
         end
+
         if eventMessage == nil || eventMessage == "unknown"
           eventMessage = err.message
         end
+
       end
-      app_event_new = AppEvent.new({classification: classification, eventType: eventType, eventMessage: eventMessage})
+      app_event_new = AppEvent.new({logLevel: log_level.downcase(), classification: classification, eventType: eventType, eventMessage: eventMessage})
       app_event_new.event_stacktrace = EventTraceBuilder.get_stacktrace(err) if err != false
+
       return app_event_new
     end
 
@@ -138,7 +165,9 @@ module Trakerr
       appEvent.api_key = appEvent.api_key || @apiKey
 
       appEvent.context_app_version = appEvent.context_app_version || @contextAppVersion
+      appEvent.deployment_stage = appEvent.deployment_stage || @contextDeploymentStage
 
+      appEvent.context_env_language = appEvent.context_env_language || @contextEnvLanguage
       appEvent.context_env_name = appEvent.context_env_name || @contextEnvName
       appEvent.context_env_version = appEvent.context_env_version || @contextEnvVersion
       appEvent.context_env_hostname = appEvent.context_env_hostname || @contextEnvHostname
