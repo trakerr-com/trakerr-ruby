@@ -2,7 +2,14 @@ require 'rubygems'
 require_relative 'trakerr/lib/trakerr'
 
 def main()
-    testApp = Trakerr::TrakerrClient.new("a56a68537730468def34067d0df7943f17815001900144", "1.0", "development")
+    argarr = ARGV
+    testApp = nil
+    if argarr.length > 0
+        testApp = Trakerr::TrakerrClient.new(argarr[0], "1.0", "development")
+    else
+        testApp = Trakerr::TrakerrClient.new("<Your API key here>", "1.0", "development")
+    end
+    
     begin
         raise ArgumentError
     rescue Exception => e
