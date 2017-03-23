@@ -5,9 +5,7 @@ def main()
     argarr = ARGV
     api_key = "<Your API key here>"
 
-    if argarr.length > 0 && api_key == "<Your API key here>"
-        api_key = argarr[0]
-    end
+    api_key = argarr[0] if argarr.length > 0 and api_key == "<Your API key here>"
 
     testApp = Trakerr::TrakerrClient.new(api_key, "1.0", "development")
     
