@@ -3,12 +3,13 @@ require_relative 'trakerr/lib/trakerr'
 
 def main()
     argarr = ARGV
-    testApp = nil
-    if argarr.length > 0
-        testApp = Trakerr::TrakerrClient.new(argarr[0], "1.0", "development")
-    else
-        testApp = Trakerr::TrakerrClient.new("<Your API key here>", "1.0", "development")
+    api_key = "<Your API key here>"
+
+    if argarr.length > 0 && api_key == "<Your API key here>"
+        api_key = argarr[0]
     end
+
+    testApp = Trakerr::TrakerrClient.new(api_key, "1.0", "development")
     
     begin
         raise ArgumentError
