@@ -124,21 +124,20 @@ The TrakerrClient struct however has a lot of exposed properties. The benifit to
 
 
 Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**api_key** | **str** | API key generated to identfy the application | 
-**context_app_version** | **str** | (optional) application version information | [optional if passed `None`] 
-**context_env_name** | **str** | (optional) one of &#39;development&#39;,&#39;staging&#39;,&#39;production&#39; or a custom string | [optional if passed `None`] Default Value: "develoment"
-**context_env_version** | **str** | (optional) version of environment | [optional if passed `None`] Default Value: Interpreter type(ie. cpython, ironpy) and python version (ie. 2.7.8)
-**context_env_hostname** | **str** | (optional) hostname or ID of environment | [optional if passed `None`] Default value: Name of the node the program is currently run on.
-**context_app_os** | **str** | (optional) OS the application is running on | [optional if passed `None`] Default value: OS name (ie. Windows, MacOS) + Release (ie. 7, 8, 10, X)
-**context_app_os_version** | **str** | (optional) OS version the application is running on | [optional if passed `None`] Default value: OS provided version number
-**context_data_center** | **str** | (optional) Data center the application is running on or connected to | [optional if passed `None`] 
-**context_data_center_region** | **str** | (optional) Data center region | [optional if passed `None`]
-**context_app_browser** | **str** | (optional) browser name if running in a browser (eg. Chrome) | [optional] For web frameworks
-**context_app_browser_version** | **str** | (optional) browser version if running in a browser | [optional] For web frameworks
-**url_path** | **str** | message containing details of the event or error | 
-
-
+------------ | ------------- | -------------  | -------------
+**apiKey** | **string** | API key generated for the application | 
+**contextAppVersion** | **string** | Application version information. | Default value: "1.0" 
+**contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: "develoment"
+**contextEnvLanguage** | **string** | Constant string representing the language the application is in. | Default value: "ruby"
+**contextEnvName** | **string** | Name of the interpreter the program is run on. | Default Value: ruby if ruby MRI or jruby if jruby
+**contextEnvVersion** | **string** | Version of ruby this program is running on. | Default Value: `JRUBY_VERSION` if jruby or `RUBY_VERSION` if ruby MRI 
+**contextEnvHostname** | **string** | Hostname or ID of environment. | Default value: `Socket.gethostname`
+**contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS).
+**contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: System architecture string.
+**contextAppOSBrowser** | **string** | An optional string browser name the application is running on. | Defaults to `nil`
+**contextAppOSBrowserVersion** | **string** | An optional string browser version the application is running on. | Defaults to `nil`
+**contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to `nil`
+**contextDataCenterRegion** | **string** | Data center region. | Defaults to `nil`
 
 ## Documentation For Models
 
