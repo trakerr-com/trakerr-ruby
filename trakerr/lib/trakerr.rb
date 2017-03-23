@@ -130,6 +130,7 @@ module Trakerr
     #Defaults to err.message if err is an exception, unknown if not.
     ##
     def CreateAppEvent(err, log_level="Error", classification = "issue", eventType = "unknown", eventMessage = "unknown")
+      raise ArgumentError, "All non err arguments are expected strings." unless log_level.is_a? String and classification.is_a? String and eventType is_a? String and eventMessage.is_a? String
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
 
