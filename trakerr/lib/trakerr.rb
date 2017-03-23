@@ -130,6 +130,7 @@ module Trakerr
     #Defaults to err.message if err is an exception, unknown if not.
     ##
     def CreateAppEvent(err, log_level="Error", classification = "issue", eventType = "unknown", eventMessage = "unknown")
+      raise ArgumentError, "All non err arguments are expected strings." unless log_level.is_a? String and classification.is_a? String and eventType is_a? String and eventMessage.is_a? String
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
 
@@ -164,6 +165,20 @@ module Trakerr
     ##
     def SendEvent(appEvent)
       @events_api.events_post(FillDefaults(appEvent))
+    end
+
+    ##
+    #Sends the given error to Trakerr. Simplest use case for Trakerr in a catch, uses the default values when sending.
+    #You can provide an optional log_level or classification.
+    #error:Exception: The exception that is captured or rescued.
+    #log_level:String: Logging level, currently one of 'debug','info','warning','error', 'fatal', defaults to 'error'. See loglevel in AppEvent for an always current list of values.
+    #classification:String: Optional extra descriptor string. Will default to issue if not passed a value.
+    ##
+    def SendException(error, log_level = "error", classification = "issue")
+      raise ArgumentError, "Error is expected type exception." unless error.is_a? Exception
+      raise ArgumentError, "log_level and classification are expected strings" unless log_level.is_a? String and classification.is_a? String
+      
+      SendEvent(CreateAppEvent(Error, log_level, classification))
     end
 
     ##
