@@ -168,6 +168,20 @@ module Trakerr
     end
 
     ##
+    #Sends the given error to Trakerr. Simplest use case for Trakerr in a catch, uses the default values when sending.
+    #You can provide an optional log_level or classification.
+    #error:Exception: The exception that is captured or rescued.
+    #log_level:String: Logging level, currently one of 'debug','info','warning','error', 'fatal', defaults to 'error'. See loglevel in AppEvent for an always current list of values.
+    #classification:String: Optional extra descriptor string. Will default to issue if not passed a value.
+    ##
+    def SendException(error, log_level = "error", classification = "issue")
+      raise ArgumentError, "Error is expected type exception." unless error.is_a? Exception
+      raise ArgumentError, "log_level and classification are expected strings" unless log_level.is_a? String and classification.is_a? String
+      
+      SendEvent(CreateAppEvent(Error, log_level, classification))
+    end
+
+    ##
     #Populates the given AppEvent with the client level default values
     #RETURNS: The AppEvent with Defaults filled.
     #appEvent:AppEvent: The AppEvent to fill.
