@@ -121,7 +121,7 @@ module Trakerr
     #If passed false, it returns an AppEvent without a stacktrace.
     #RETURNS: An AppEvent instance with the default event information.
     #err:Exception: The exception that is captured or rescued, or false if you don't need a stacktrace.
-    #log_level:String: Logging level, one of 'debug','info','warning','error', 'fatal', defaults to 'error'.
+    #log_level:String: Logging level, currently one of 'debug','info','warning','error', 'fatal', defaults to 'error'. See loglevel in AppEvent for an always current list of values.
     #Will argument error if passed another value.
     #classification:String: Optional extra descriptor string. Will default to issue if not passed a value.
     #eventType:string: String representation of the type of error.
@@ -142,7 +142,17 @@ module Trakerr
         end
 
       end
-      app_event_new = AppEvent.new({logLevel: log_level.downcase(), classification: classification, eventType: eventType, eventMessage: eventMessage})
+
+      log_level = log_level.downcase
+
+      app_event_new = AppEvent.new({classification: classification, eventType: eventType, eventMessage: eventMessage})
+
+      begin
+        app_event_new.log_level = log_level
+      rescue
+        app_event_new.log_level = "error"
+      end
+      
       app_event_new.event_stacktrace = EventTraceBuilder.get_stacktrace(err) if err != false
 
       return app_event_new
