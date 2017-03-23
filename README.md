@@ -6,6 +6,7 @@ You will need your API key to send events to trakerr.
 ## Requirements.
 
 Ruby 1.9.3+
+and
 git 2.0+
 
 ## Installation & Usage
@@ -24,7 +25,7 @@ yum install git
 For Windows, or if you aren't using a package manager, visit https://git-scm.com/ and download and install it manually. Make sure it is added to your path (open your command prompt and type git --version. If it works, you're set.)
 
 
-If you are on Windows, you may also need to install curl. Follow the instructions on the curl website for more information.
+If you are on Windows, you may also need to install curl and configure your ruby to use it. Trakerr uses typhous to actually send the exception to us. Follow the instructions on the curl website for more information and Typhous's project page to finish setup.
 
 ### 2) gem install
 
@@ -46,16 +47,37 @@ require 'trakerr/lib/trakerr'
 
 ## Getting Started
 
-Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in testmain.py.
+Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in test_app.rb.
 
-### Sending Data
-You can send custom data as part of your error event if you need to. This circumvents the python handler. Require the package:
+If you would like to generate some quick sample events, you may download test_app.rb and run it from the command line like so:
+```sh
+ruby test_app.rb <api key here>
+```
+
+## Sending Data
+Require the package:
 
 ```ruby
 require 'trakerr/lib/trakerr'
 ```
 
-You'll then need to initialize custom properties once you create the event. Note that `CreateError` and `CreateEvent` can be used to send any levels of error, including warnings, info and fatal. Look at the method signature for more information.
+### Option 1: Sending a default error to Trakerr
+A trivial case would involve calling `SendException` for a caught exception.
+```ruby
+def main()
+    testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
+    begin
+        raise ArgumentError
+    rescue Exception => e
+        testApp.SendException(e)
+    end
+end
+```
+
+`SendExecption` may also take in a log_level and a classification, but will otherwise default all of the AppEvent properties.
+
+### Option 2: Sending an error to Trakerr with Custom Data
+If you want to populate the `AppEvent` with custom properties, you can manually create an `AppEvent` and populate it's fields. Pass it to the `SendEvent` to then send the AppEvent to Trakerr. See the `AppEvent` API for more information on it's properties.
 
 ```ruby
 def main()
@@ -63,7 +85,7 @@ def main()
     begin
         raise ArgumentError
     rescue Exception => e
-        appev = testApp.CreateError(e)
+        appev = testApp.CreateAppEvent(e)
         appev.event_user = "john@trakerr.io"
         appev.event_session = "5"
 
@@ -72,24 +94,33 @@ def main()
 end
 ```
 
-## An in-depth look at initalizing Trakerr
-Most of the examples above involve are initialized simply, since the error is populated with default values. If we take a look at the constructor, we see that there is actually plenty of fields we can fill in ourselves if we don't find the default value useful.
+### Option 3: Send a non-exception to Trakerr
+Trakerr accepts events that aren't errors. To do so, pass false to the CreateAppEvent Exception field to not attach a stacktrace to the event (if you don't need it). Be sure to pass values in to the rest of the parameters since the default values will most likely not be useful for you!
 ```ruby
- def initialize(apiKey,
-                contextAppVersion = "1.0",
-                contextEnvName = "development",
-                contextEnvVersion = nil,
-                contextEnvHostname= nil,
-                contextAppOS= nil,
-                contextAppOSVersion= nil,
-                contextAppBrowser= nil,
-                contextAppBrowserVersion= nil,
-                contextDataCenter= nil,
-                contextDataCenter= nil,
-                url= nil)
+def main()
+    testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
+    
+    #Send a non Exception to Trakerr.
+    appev2 = testApp.CreateAppEvent(false, "Info", "User failed auth", "Passwords are different", "User error")
+    appev2.event_user = "jill@trakerr.io"
+    appev2.event_session = "3"
+
+    testApp.SendEvent(appev2)
+end
 ```
 
-Below is a useful table that covers what each of the the values should be and default to.
+## An in-depth look at TrakerrClient's properties
+TrakerrClient's constructor initalizes the default values to all of TrakerrClient's properties.
+
+```ruby
+ def initialize(def initialize(apiKey,
+                   contextAppVersion = "1.0",
+                   contextDeploymentStage = "development")
+```
+
+The contextEnvName name is intended to be used as a string identifier as to what your codebase is for; release, development, prototype. You can use it for whatever you denote as useful. The contextAppVersion is useful for a codebase version identifier, or perhaps some other useful metric for the error.
+
+The TrakerrClient struct however has a lot of exposed properties. The benifit to setting these after you create the TrakerrClient is that AppEvent will default it's values against the TrakerClient that created it. This way if there is a value that all your AppEvents uses, and the constructor default value currently doesn't suit you; it may be easier to change it in TrakerrClient as it will become the default value for all AppEvents created after. A lot of these are populated by default value by the constructor, but you can populate them with whatever string data you want. The following table provides an in depth look at each of those.
 
 
 Name | Type | Description | Notes
