@@ -13,13 +13,13 @@ def main()
     begin
         raise ZeroDivisionError, "Oh no!"
     rescue => exception
-        testApp.SendException(exception) #you can change the log_level and the classification too if you would like to!
+        testApp.SendException(exception) #You can change the log_level and the classification too if you would like to!
     end
     
-    #Get an AppEvent to populate the class with custom data and then send it to Trakerr
+    #Get an AppEvent to populate the class with custom data and then send it to Trakerr.
     begin
         raise ArgumentError
-    rescue Exception => e
+    rescue ArgumentError => e
         appev = testApp.CreateAppEvent(e, "Error")
         appev.event_user = "john@trakerr.io"
         appev.event_session = "5"
