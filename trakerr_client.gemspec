@@ -29,7 +29,7 @@ $:.push File.expand_path("../trakerr/lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "trakerr_client"
-  s.version     = "1.0.1"
+  s.version     = "1.0.2"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Swagger-Codegen"]
   s.email       = [""]
