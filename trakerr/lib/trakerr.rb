@@ -130,7 +130,7 @@ module Trakerr
     #Defaults to err.message if err is an exception, unknown if not.
     ##
     def CreateAppEvent(err = false, log_level="Error", classification = "issue", eventType = "unknown", eventMessage = "unknown")
-      raise ArgumentError, "All non err arguments are expected strings." unless log_level.is_a? String and classification.is_a? String and eventType is_a? String and eventMessage.is_a? String
+      raise ArgumentError, "All non err arguments are expected strings." unless (log_level.is_a? String) && (classification.is_a? String) && (eventType.is_a? String) && (eventMessage.is_a? String)
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
 
@@ -176,7 +176,7 @@ module Trakerr
     ##
     def SendException(error, log_level = "error", classification = "issue")
       raise ArgumentError, "Error is expected type exception." unless error.is_a? Exception
-      raise ArgumentError, "log_level and classification are expected strings" unless log_level.is_a? String and classification.is_a? String
+      raise ArgumentError, "log_level and classification are expected strings" unless (log_level.is_a? String) && (classification.is_a? String)
       
       SendEvent(CreateAppEvent(Error, log_level, classification))
     end
@@ -220,7 +220,7 @@ module Trakerr
       #suffix:String: The suffix string to find the ending index for.
       ##
       def GetTextFromLine(text, prefix, suffix)
-        raise ArgumentError, "All arguments are expected strings." unless text.is_a? String and prefix.is_a? String and suffix.is_a? String
+        raise ArgumentError, "All arguments are expected strings." unless (text.is_a? String) && (prefix.is_a? String) && (suffix.is_a? String)
       
         prefixindex = text.index(prefix)
         return nil if prefixindex == nil
