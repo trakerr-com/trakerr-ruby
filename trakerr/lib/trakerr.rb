@@ -150,7 +150,7 @@ module Trakerr
 
       begin
         app_event_new.log_level = log_level
-      rescue
+      rescue ArgumentError
         app_event_new.log_level = "error"
       end
       

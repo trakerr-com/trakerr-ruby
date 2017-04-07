@@ -19,7 +19,7 @@ def main()
     #Get an AppEvent to populate the class with custom data and then send it to Trakerr
     begin
         raise ArgumentError
-    rescue Exception => e
+    rescue ArgumentError => e
         appev = testApp.CreateAppEvent(e, "Error")
         appev.event_user = "john@trakerr.io"
         appev.event_session = "5"
