@@ -1,7 +1,7 @@
 =begin
-#Trakerr API
+Trakerr API
 
-#Get your application events and errors to Trakerr via the *Trakerr API*.
+Get your application events and errors to Trakerr via the *Trakerr API*.
 
 OpenAPI spec version: 1.0.0
 

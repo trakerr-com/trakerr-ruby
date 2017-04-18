@@ -1,3 +1,22 @@
+=begin
+Trakerr API
+
+Get your application events and errors to Trakerr via the *Trakerr API*.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=end
+
 require "event_trace_builder"
 require "trakerr_client"
 require "socket"
@@ -158,6 +177,38 @@ module Trakerr
 
       return app_event_new
     end
+    
+    ##
+    #A single line method to send an event to trakerr.
+    #Use may it in a begin-rescue and pass in an error,
+    #or set error to false if you don't need a stacktrace.
+    #arg_hash takes in a few common values that you may want to populate
+    #your app event with in a hash.
+    #arg_hash:Hash: A hash with a key value pair for each of the following elements
+    #{"user":"...", "session":"...", "evntname":"...", "evntmessage":"..."}.
+    #Omit any element you don't need to fill in the event.
+    #If you are NOT sending an error it is recommended that you pass in an evntname and evntmessage
+    #error:Exception: The exception you may be sending. Set this to false if you are sending a non-error.
+    #This throws an Argument error if error is not an Exception and it's child classes or false.
+    #log_level:String: The string representation of the level of the error.
+    #classification:String: The string representation on the classification of the issue.
+    ##
+    def log(arg_hash, error, log_level = "Error", classification = "issue")
+      raise ArgumentError, "arg_hash is expected to be a hash" unless arg_hash.is_a? Hash
+      raise ArgumentError, "log_level and classification is expected strings." unless (log_level.is_a? String) && (classification.is_a? String)
+
+      app_event = nil
+      if error != false
+        raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
+        app_event = CreateAppEvent(error, log_level, classification, arg_hash["evntname"], arg_hash["evntmessage"])
+        
+      end
+      app_event = CreateAppEvent(false,log_level, classification, arg_hash["evntname"], arg_hash["evntmessage"]) if app_event.nil?
+      app_event.event_user = arg_hash["user"] if arg_hash.has_key? "user"
+      app_event.event_session = arg_hash["session"] if arg_hash.has_key? "session"
+
+      SendEvent(app_event)
+    end
 
     ##
     #Sends the given AppEvent to Trakerr
@@ -165,20 +216,6 @@ module Trakerr
     ##
     def SendEvent(appEvent)
       @events_api.events_post(FillDefaults(appEvent))
-    end
-
-    ##
-    #Sends the given error to Trakerr. Simplest use case for Trakerr in a catch, uses the default values when sending.
-    #You can provide an optional log_level or classification.
-    #error:Exception: The exception that is captured or rescued.
-    #log_level:String: Logging level, currently one of 'debug','info','warning','error', 'fatal', defaults to 'error'. See loglevel in AppEvent for an always current list of values.
-    #classification:String: Optional extra descriptor string. Will default to issue if not passed a value.
-    ##
-    def SendException(error, log_level = "error", classification = "issue")
-      raise ArgumentError, "Error is expected type exception." unless error.is_a? Exception
-      raise ArgumentError, "log_level and classification are expected strings" unless (log_level.is_a? String) && (classification.is_a? String)
-      
-      SendEvent(CreateAppEvent(Error, log_level, classification))
     end
 
     ##
