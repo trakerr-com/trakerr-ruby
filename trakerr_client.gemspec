@@ -29,11 +29,11 @@ $:.push File.expand_path("../trakerr/lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "trakerr_client"
-  s.version     = "1.0.2"
+  s.version     = "2.0.0"
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Swagger-Codegen"]
+  s.authors     = ["Trakerr Dev Team", "Swagger-Codegen"]
   s.email       = [""]
-  s.homepage    = "https://github.com/swagger-api/swagger-codegen"
+  s.homepage    = "https://trakerr.io"
   s.summary     = "Trakerr API Ruby Gem"
   s.description = "Get your application events and errors to Trakerr via the *Trakerr API*."
   s.license     = "Apache-2.0"
@@ -51,6 +51,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'autotest-fsevent', '~> 0.2', '>= 0.2.11'
 
   #s.files         = `find *`.split("\n").uniq.sort.select{|f| !f.empty? }
+  #REQUIRES GIT INSTALLED
   s.files         = `git ls-files`.split("\n").delete_if {|file| file.include? "spec"}
   s.test_files    = `git ls-files`.split("\n").delete_if {|file| not file.include? "spec"}
   s.executables   = []
