@@ -158,6 +158,38 @@ module Trakerr
 
       return app_event_new
     end
+    
+    ##
+    #A single line method to send an event to trakerr.
+    #Use may it in a begin-rescue and pass in an error,
+    #or set error to false if you don't need a stacktrace.
+    #arg_hash takes in a few common values that you may want to populate
+    #your app event with in a hash.
+    #arg_hash:Hash: A hash with a key value pair for each of the following elements
+    #{"user":"...", "session":"...", "evntname":"...", "evntmessage":"..."}.
+    #Omit any element you don't need to fill in the event.
+    #If you are NOT sending an error it is recommended that you pass in an evntname and evntmessage
+    #error:Exception: The exception you may be sending. Set this to false if you are sending a non-error.
+    #This throws an Argument error if error is not an Exception and it's child classes or false.
+    #log_level:String: The string representation of the level of the error.
+    #classification:String: The string representation on the classification of the issue.
+    ##
+    def log(arg_hash, error, log_level = "Error", classification = "issue")
+      raise ArgumentError, "arg_hash is expected to be a hash" unless arg_hash.is_a? Hash
+      raise ArgumentError, "log_level and classification is expected strings." unless (log_level.is_a? String) && (classification.is_a? String)
+
+      app_event = nil
+      if error != false
+        raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
+        app_event = CreateAppEvent(error, log_level, classification, arg_hash["evntname"], arg_hash["evntmessage"])
+        
+      end
+      app_event = CreateAppEvent(false,log_level, classification, arg_hash["evntname"], arg_hash["evntmessage"]) if app_event.nil?
+      app_event.event_user = arg_hash["user"] if arg_hash.has_key? "user"
+      app_event.event_session = arg_hash["session"] if arg_hash.has_key? "session"
+
+      SendEvent(app_event)
+    end
 
     ##
     #Sends the given AppEvent to Trakerr
