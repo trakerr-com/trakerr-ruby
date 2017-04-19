@@ -152,14 +152,10 @@ module Trakerr
       raise ArgumentError, "All non err arguments are expected strings." unless (log_level.is_a? String) && (classification.is_a? String) && (eventType.is_a? String) && (eventMessage.is_a? String)
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
-
-        if eventType == nil || eventType == "unknown"
-          eventType = err.class.name
-        end
-
-        if eventMessage == nil || eventMessage == "unknown"
-          eventMessage = err.message
-        end
+     
+        eventType = err.class.name if eventType == "unknown"
+    
+        eventMessage = err.message if eventMessage == "unknown"
 
       end
 
@@ -199,11 +195,11 @@ module Trakerr
 
       app_event = nil
       if error != false
-        raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
-        app_event = CreateAppEvent(error, log_level, classification, arg_hash["evntname"], arg_hash["evntmessage"])
+        raise ArgumentError, "err is expected instance of exception." unless error.is_a? Exception
+        app_event = CreateAppEvent(error, log_level, classification, arg_hash.fetch("evntname", "unknown"), arg_hash.fetch("evntmessage", "unknown"))
         
       end
-      app_event = CreateAppEvent(false,log_level, classification, arg_hash["evntname"], arg_hash["evntmessage"]) if app_event.nil?
+      app_event = CreateAppEvent(false,log_level, classification, arg_hash.fetch("evntname", "unknown"), arg_hash.fetch("evntmessage", "unknown")) if app_event.nil?
       app_event.event_user = arg_hash["user"] if arg_hash.has_key? "user"
       app_event.event_session = arg_hash["session"] if arg_hash.has_key? "session"
 

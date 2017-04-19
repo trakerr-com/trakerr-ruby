@@ -31,17 +31,20 @@ def main()
     #Send exception to Trakerr with default values.
     begin
         raise ZeroDivisionError, "Oh no!"
-    rescue => exception
-        testApp.SendException(exception) #You can change the log_level and the classification too if you would like to!
+    rescue ZeroDivisionError => exception
+        testApp.log({}, exception) #You can change the log_level and the classification too if you would like to!
     end
     
     #Get an AppEvent to populate the class with custom data and then send it to Trakerr.
+    #Simple custom data can be send through log.
     begin
         raise ArgumentError
     rescue ArgumentError => e
         appev = testApp.CreateAppEvent(e, "Error")
         appev.event_user = "john@trakerr.io"
         appev.event_session = "5"
+        appev.context_app_browser = "Chrome"
+        appev.context_app_browser_version = "57.x"
 
         testApp.SendEvent(appev)
     end
@@ -50,6 +53,8 @@ def main()
     appev2 = testApp.CreateAppEvent(false, "Info", "User failed auth", "400 err", "User error")
     appev2.event_user = "jill@trakerr.io"
     appev2.event_session = "3"
+    appev2.context_app_browser = "Edge"
+    appev2.context_app_browser_version = "40.15063.0.0"
 
     testApp.SendEvent(appev2)
 
