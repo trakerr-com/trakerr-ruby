@@ -5,8 +5,8 @@ You will need your API key to send events to trakerr.
 
 ## Overview
 
--API version: 1.0.0
--Package version: 1.0.0
+- API version: 1.0.0
+- Package version: 1.0.0
 
 ## Requirements.
 
