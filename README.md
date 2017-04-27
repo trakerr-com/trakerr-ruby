@@ -5,8 +5,8 @@ You will need your API key to send events to trakerr.
 
 ## Overview
 
-- API version: 1.0.0
-- Package version: 1.0.0
+- REST API version: 2.0.0
+- Package (SDK) version: 2.0.0
 
 ## Requirements.
 
@@ -67,22 +67,27 @@ require 'trakerr/lib/trakerr'
 ```
 
 ### Option 1: Sending a default error to Trakerr
-A trivial case would involve calling `SendException` for a caught exception.
+A trivial case would involve calling `log` for a caught exception.
 ```ruby
 def main()
     testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
     begin
-        raise ArgumentError
-    rescue Exception => e
-        testApp.SendException(e)
+        raise ZeroDivisionError, "Oh no!"
+    rescue ZeroDivisionError => exception
+        #You can leave the hash empty if you would like to use the default values.
+        #We recommend that you supply a user and a session for all events,
+        #and supplying an "evntname" and "evntmessage" for non errors.
+        testApp.log({"user"=>"jack@trakerr.io", "session"=>"7"}, exception) 
     end
 end
 ```
 
-`SendExecption` may also take in a log_level and a classification, but will otherwise default all of the AppEvent properties.
+Along with the `"user"` and `"session"`; the hash can also take `"evntname"` and `"evntmessage"`. Note that these two will be filled in automatically for errors you rescue if you do not provide them, so we suggest giving them for non-errors.
+
+`log` may also take in a log_level and a classification (We recommend you providing this **especially** if you send a warning or below), but will otherwise default all of the AppEvent properties.
 
 ### Option 2: Sending an error to Trakerr with Custom Data
-If you want to populate the `AppEvent` with custom properties, you can manually create an `AppEvent` and populate it's fields. Pass it to the `SendEvent` to then send the AppEvent to Trakerr. See the `AppEvent` API for more information on it's properties.
+If you want to populate the `AppEvent` fully with custom properties (log only accepts the minimum set of useful custom properties to utilize Trakerr's rich feature set), you can manually create an `AppEvent` and populate it's fields. Pass it to the `SendEvent` to then send the AppEvent to Trakerr. See the `AppEvent` API for more information on it's properties.
 
 ```ruby
 def main()
@@ -100,7 +105,7 @@ end
 ```
 
 ### Option 3: Send a non-exception to Trakerr
-Trakerr accepts events that aren't errors. To do so, pass false to the CreateAppEvent Exception field to not attach a stacktrace to the event (if you don't need it). Be sure to pass values in to the rest of the parameters since the default values will most likely not be useful for you!
+Trakerr accepts events that aren't errors. To do so, pass false to the CreateAppEvent Exception field to not attach a stacktrace to the event (if you don't need it). Be sure to pass values in to the rest of the parameters since the default values will most likely not be useful for you if you don't have a stacktrace!
 ```ruby
 def main()
     testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
@@ -123,7 +128,7 @@ TrakerrClient's constructor initalizes the default values to all of TrakerrClien
                    contextDeploymentStage = "development")
 ```
 
-The TrakerrClient class however has a lot of exposed properties. The benefit to setting these immediately after after you create the TrakerrClient is that AppEvent will default it's values against the TrakerClient that created it. This way if there is a value that all your AppEvents uses, and the constructor default value currently doesn't suit you; it may be easier to change it in TrakerrClient as it will become the default value for all AppEvents created after. A lot of these are populated by default value by the constructor, but you can populate them with whatever string data you want. The following table provides an in depth look at each of those.
+The TrakerrClient class however has a lot of exposed properties. The benefit to setting these immediately after after you create the TrakerrClient is that AppEvent will default it's values against the TrakerClient that created it. This way if there is a value that all your AppEvents uses, and the constructor default value currently doesn't suit you; it may be easier to change it in TrakerrClient as it will become the default value for all AppEvents created after. A lot of these are populated by default value by the constructor, but you can populate them with whatever string data you want. The following table provides an in-depth look at each of those.
 
 
 Name | Type | Description | Notes
