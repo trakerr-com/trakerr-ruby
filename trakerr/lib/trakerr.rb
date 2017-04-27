@@ -180,9 +180,11 @@ module Trakerr
     #arg_hash takes in a few common values that you may want to populate
     #your app event with in a hash.
     #arg_hash:Hash: A hash with a key value pair for each of the following elements
-    #{"user":"...", "session":"...", "evntname":"...", "evntmessage":"..."}.
+    #{"user": "...", "session": "...", "evntname": "...", "evntmessage": "..."}.
     #Omit any element you don't need to fill in the event.
-    #If you are NOT sending an error it is recommended that you pass in an evntname and evntmessage
+    #If you are NOT sending an error it is recommended that you pass in an evntname and evntmessage.
+    #Remember that all keys are expected strings, and so it may be safer to you use the arrow
+    #operator (=>) so you don't forget to add the space.
     #error:Exception: The exception you may be sending. Set this to false if you are sending a non-error.
     #This throws an Argument error if error is not an Exception and it's child classes or false.
     #log_level:String: The string representation of the level of the error.

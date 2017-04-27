@@ -14,7 +14,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 =end
 
 require 'rubygems'
@@ -32,7 +31,10 @@ def main()
     begin
         raise ZeroDivisionError, "Oh no!"
     rescue ZeroDivisionError => exception
-        testApp.log({}, exception) #You can change the log_level and the classification too if you would like to!
+        #You can leave the hash empty if you would like to use the default values.
+        #We recommend that you supply a user and a session for all events,
+        #and supplying an "evntname" and "evntmessage" for non errors.
+        testApp.log({"user"=>"jack@trakerr.io", "session"=>"7"}, exception) 
     end
     
     #Get an AppEvent to populate the class with custom data and then send it to Trakerr.
