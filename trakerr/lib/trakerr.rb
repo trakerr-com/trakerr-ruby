@@ -14,7 +14,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 =end
 
 require "event_trace_builder"
@@ -71,8 +70,8 @@ module Trakerr
     #contextEnvName:String: Should be the deployment stage of your program.
     ##
     def initialize(apiKey,
-                   contextAppVersion = "1.0",
-                   contextDeploymentStage = "development")
+                   contextAppVersion="1.0",
+                   contextDeploymentStage="development")
 
       default_config = Trakerr::Configuration.default
       default_config.base_path = default_config.base_path
@@ -148,7 +147,7 @@ module Trakerr
     #eventMessage:String: String representation of the message of the error.
     #Defaults to err.message if err is an exception, unknown if not.
     ##
-    def CreateAppEvent(err = false, log_level="Error", classification = "issue", eventType = "unknown", eventMessage = "unknown")
+    def CreateAppEvent(err = false, log_level="Error", classification="issue", eventType="unknown", eventMessage="unknown")
       raise ArgumentError, "All non err arguments are expected strings." unless (log_level.is_a? String) && (classification.is_a? String) && (eventType.is_a? String) && (eventMessage.is_a? String)
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
@@ -189,7 +188,7 @@ module Trakerr
     #log_level:String: The string representation of the level of the error.
     #classification:String: The string representation on the classification of the issue.
     ##
-    def log(arg_hash, error, log_level = "Error", classification = "issue")
+    def log(arg_hash, error, log_level = "error", classification = "issue")
       raise ArgumentError, "arg_hash is expected to be a hash" unless arg_hash.is_a? Hash
       raise ArgumentError, "log_level and classification is expected strings." unless (log_level.is_a? String) && (classification.is_a? String)
 
