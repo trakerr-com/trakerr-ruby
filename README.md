@@ -4,7 +4,6 @@ Get your application events and errors to Trakerr via the *Trakerr API*.
 You will need your API key to send events to trakerr.
 
 ## Overview
-
 - REST API version: 2.0.0
 - Package (SDK) version: 2.0.0
 
