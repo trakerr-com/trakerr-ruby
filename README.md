@@ -1,4 +1,4 @@
-# Trakerr-ruby API client
+# Trakerr - Ruby API client
 Get your application events and errors to Trakerr via the *Trakerr API*.
 
 You will need your API key to send events to trakerr.
@@ -49,7 +49,7 @@ Then import the package:
 require 'trakerr/lib/trakerr'
 ```
 
-## Getting Started
+## Detailed Integration Guide
 
 Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in test_app.rb.
 
@@ -58,7 +58,7 @@ If you would like to generate some quick sample events, you may download test_ap
 ruby test_app.rb <api key here>
 ```
 
-## Sending Data
+### Package dependency
 Require the package:
 
 ```ruby
@@ -133,8 +133,8 @@ The TrakerrClient class however has a lot of exposed properties. The benefit to 
 Name | Type | Description | Notes
 ------------ | ------------- | -------------  | -------------
 **apiKey** | **string** | API key generated for the application | 
-**contextAppVersion** | **string** | Application version information. | Default value: "1.0" 
-**contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: "develoment"
+**contextAppVersion** | **string** | Application version information. | Default value: `1.0`
+**contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: `development`
 **contextEnvLanguage** | **string** | Constant string representing the language the application is in. | Default value: "ruby"
 **contextEnvName** | **string** | Name of the interpreter the program is run on. | Default Value: ruby if ruby MRI or jruby if jruby
 **contextEnvVersion** | **string** | Version of ruby this program is running on. | Default Value: `JRUBY_VERSION` if jruby or `RUBY_VERSION` if ruby MRI 
