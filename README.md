@@ -3,15 +3,8 @@ Get your application events and errors to Trakerr via the *Trakerr API*.
 
 You will need your API key to send events to trakerr.
 
-## Overview
-- REST API version: 2.0.0
-- Package (SDK) version: 2.0.0
-
 ## Requirements.
-
-Ruby 1.9.3+
-and
-git 2.0+
+Ruby 1.9.3+, git 2.0+, and curl 7.47.0+
 
 ## Installation & Usage
 ### 1) Install git and curl
