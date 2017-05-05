@@ -1,7 +1,7 @@
 =begin
-Trakerr API
+#Trakerr API
 
-Get your application events and errors to Trakerr via the *Trakerr API*.
+#Get your application events and errors to Trakerr via the *Trakerr API*.
 
 OpenAPI spec version: 1.0.0
 
@@ -32,7 +32,7 @@ module Trakerr
     # (optional) Logging level, one of 'debug','info','warning','error', 'fatal', defaults to 'error'
     attr_accessor :log_level
 
-    # (optional) one of 'error' or a custom string for non-errors, defaults to 'error'
+    # (optional) one of 'issue' or a custom string for non-issues, defaults to 'issue'
     attr_accessor :classification
 
     # type of the event or error (eg. NullPointerException)
@@ -88,6 +88,29 @@ module Trakerr
     # (optional) Data center region
     attr_accessor :context_data_center_region
 
+    attr_accessor :context_tags
+
+    # (optional) The full URL when running in a browser when the event was generated.
+    attr_accessor :context_url
+
+    # (optional) duration that this event took to occur in millis. Example - database call time in millis.
+    attr_accessor :context_operation_time_millis
+
+    # (optional) CPU utilization as a percent when event occured
+    attr_accessor :context_cpu_percentage
+
+    # (optional) Memory utilization as a percent when event occured
+    attr_accessor :context_memory_percentage
+
+    # (optional) Cross application correlation ID
+    attr_accessor :context_cross_app_correlation_id
+
+    # (optional) Device information
+    attr_accessor :context_device
+
+    # (optional) Application SKU
+    attr_accessor :context_app_sku
+
     attr_accessor :custom_properties
 
     attr_accessor :custom_segments
@@ -138,6 +161,14 @@ module Trakerr
         :'context_app_os_version' => :'contextAppOSVersion',
         :'context_data_center' => :'contextDataCenter',
         :'context_data_center_region' => :'contextDataCenterRegion',
+        :'context_tags' => :'contextTags',
+        :'context_url' => :'contextURL',
+        :'context_operation_time_millis' => :'contextOperationTimeMillis',
+        :'context_cpu_percentage' => :'contextCpuPercentage',
+        :'context_memory_percentage' => :'contextMemoryPercentage',
+        :'context_cross_app_correlation_id' => :'contextCrossAppCorrelationId',
+        :'context_device' => :'contextDevice',
+        :'context_app_sku' => :'contextAppSku',
         :'custom_properties' => :'customProperties',
         :'custom_segments' => :'customSegments'
       }
@@ -167,6 +198,14 @@ module Trakerr
         :'context_app_os_version' => :'String',
         :'context_data_center' => :'String',
         :'context_data_center_region' => :'String',
+        :'context_tags' => :'Array<String>',
+        :'context_url' => :'String',
+        :'context_operation_time_millis' => :'Integer',
+        :'context_cpu_percentage' => :'Integer',
+        :'context_memory_percentage' => :'Integer',
+        :'context_cross_app_correlation_id' => :'String',
+        :'context_device' => :'String',
+        :'context_app_sku' => :'String',
         :'custom_properties' => :'CustomData',
         :'custom_segments' => :'CustomData'
       }
@@ -264,6 +303,40 @@ module Trakerr
         self.context_data_center_region = attributes[:'contextDataCenterRegion']
       end
 
+      if attributes.has_key?(:'contextTags')
+        if (value = attributes[:'contextTags']).is_a?(Array)
+          self.context_tags = value
+        end
+      end
+
+      if attributes.has_key?(:'contextURL')
+        self.context_url = attributes[:'contextURL']
+      end
+
+      if attributes.has_key?(:'contextOperationTimeMillis')
+        self.context_operation_time_millis = attributes[:'contextOperationTimeMillis']
+      end
+
+      if attributes.has_key?(:'contextCpuPercentage')
+        self.context_cpu_percentage = attributes[:'contextCpuPercentage']
+      end
+
+      if attributes.has_key?(:'contextMemoryPercentage')
+        self.context_memory_percentage = attributes[:'contextMemoryPercentage']
+      end
+
+      if attributes.has_key?(:'contextCrossAppCorrelationId')
+        self.context_cross_app_correlation_id = attributes[:'contextCrossAppCorrelationId']
+      end
+
+      if attributes.has_key?(:'contextDevice')
+        self.context_device = attributes[:'contextDevice']
+      end
+
+      if attributes.has_key?(:'contextAppSku')
+        self.context_app_sku = attributes[:'contextAppSku']
+      end
+
       if attributes.has_key?(:'customProperties')
         self.custom_properties = attributes[:'customProperties']
       end
@@ -329,6 +402,14 @@ module Trakerr
           context_app_os_version == o.context_app_os_version &&
           context_data_center == o.context_data_center &&
           context_data_center_region == o.context_data_center_region &&
+          context_tags == o.context_tags &&
+          context_url == o.context_url &&
+          context_operation_time_millis == o.context_operation_time_millis &&
+          context_cpu_percentage == o.context_cpu_percentage &&
+          context_memory_percentage == o.context_memory_percentage &&
+          context_cross_app_correlation_id == o.context_cross_app_correlation_id &&
+          context_device == o.context_device &&
+          context_app_sku == o.context_app_sku &&
           custom_properties == o.custom_properties &&
           custom_segments == o.custom_segments
     end
@@ -342,7 +423,7 @@ module Trakerr
     # Calculates hash code according to all attributes.
     # @return [Fixnum] Hash code
     def hash
-      [api_key, log_level, classification, event_type, event_message, event_time, event_stacktrace, event_user, event_session, context_app_version, deployment_stage, context_env_name, context_env_language, context_env_version, context_env_hostname, context_app_browser, context_app_browser_version, context_app_os, context_app_os_version, context_data_center, context_data_center_region, custom_properties, custom_segments].hash
+      [api_key, log_level, classification, event_type, event_message, event_time, event_stacktrace, event_user, event_session, context_app_version, deployment_stage, context_env_name, context_env_language, context_env_version, context_env_hostname, context_app_browser, context_app_browser_version, context_app_os, context_app_os_version, context_data_center, context_data_center_region, context_tags, context_url, context_operation_time_millis, context_cpu_percentage, context_memory_percentage, context_cross_app_correlation_id, context_device, context_app_sku, custom_properties, custom_segments].hash
     end
 
     # Builds the object from hash

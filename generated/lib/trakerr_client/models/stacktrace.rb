@@ -25,7 +25,7 @@ require 'date'
 
 module Trakerr
 
-  class Stacktrace < Array
+  class Stacktrace
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
