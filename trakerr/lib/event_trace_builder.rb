@@ -31,25 +31,26 @@ module Trakerr
       raise ArgumentError, "get_stacktrace expects an exception instance." unless exc.is_a? Exception
 
       strace = Trakerr::Stacktrace.new
-      add_stack_trace(strace, exc)
+      add_stack_trace(strace, exc.class.name, exc.message, best_regexp_for(exc), exc.backtrace)
+      return strace
+    end
+
+    def self.get_logger_stacktrace(errtype, errmessage, stackarray)
+      raise ArgumentError, "errtype and errmessage are expected strings" unless (errtype.is_a? String) && (errmessage.is_a? String)
+      raise ArgumentError, "stackarray is expected to be an iterable with strings values" unless stackarray.respond_to?('each')
+
+      strace = Trakerr::Stacktrace.new
+      self.add_stack_trace(strace, errtype, errmessage, best_regexp_guess(stackarray[0]), stackarray)
       return strace
     end
 
     private
-
-      ##
-      #Adds a InnerStackTrace to the Stacktrace object (which is a collection)
-      #strace:Stacktrace: The Stacktrace object to append the latest InnerStackTrace to.
-      #exc:Exception: The exception caught or rescued.
-      ##
-      def self.add_stack_trace(strace, exc)
-        raise ArgumentError, "add_stack_trace did not get passed in the correct arguments" unless exc.is_a? Exception and strace.instance_of? Stacktrace
-
+      def self.add_stack_trace(strace, errtype, errmessage, regex, stackarray)
         newtrace = Trakerr::InnerStackTrace.new
 
-        newtrace.type = exc.class.name
-        newtrace.message = exc.message
-        newtrace.trace_lines = get_event_tracelines(best_regexp_for(exc), exc.backtrace)
+        newtrace.type = errtype
+        newtrace.message = errmessage
+        newtrace.trace_lines = get_event_tracelines(regex, stackarray)
         strace.push(newtrace)
       end
 
@@ -75,7 +76,7 @@ module Trakerr
       end
 
       ##
-      #Parses each given line by the regex
+      #Parses each given line by the regex.
       #RETURNS: A match object with the capture groups file function and line set.
       #regex:RegularExpression: The regular expression to parse the stacktrace text with.
       #line:String: A string with the traceline to parce
@@ -90,7 +91,7 @@ module Trakerr
       end
 
       def self.best_regexp_for(exc)
-        #add error check
+        #TODO: add error check
         if defined?(Java::JavaLang::Throwable) && exc.is_a?(Java::JavaLang::Throwable)
          @@JAVA
         elsif defined?(OCIError) && exc.is_a?(OCIError)
@@ -100,6 +101,32 @@ module Trakerr
         else
           @@RUBY
         end
+      end
+
+      def self.best_regexp_guess(str)
+        #Guess the regex. Test each regex on the string and see which regex captures the most data.
+        #Use the one that captures the most. RegexErrors if none of the regexs are able to match
+
+        java_match = @@JAVA.match(str) if defined?(Java::JavaLang::Throwable)
+        oci_match = @@OCI.match(str) #if defined?(OCIError)
+        ruby_match = @@RUBY.match(str)
+        java_count = 0
+        ruby_count = 0
+        oci_count = 0
+
+        ruby_match.captures.each {|item| ruby_count+= 1 if item} if ruby_match
+        oci_match.captures.each {|item| oci_count+= 1 if item} if oci_match
+        java_match.captures.each {|item| java_count+= 1 if item} if java_match
+
+        if ruby_count >= oci_count && ruby_count >= java_count && ruby_count > 0
+          @@RUBY
+        elsif oci_count >= ruby_count && oci_count >= java_count && oci_count > 0
+          @@OCI
+        elsif  java_count >= ruby_count && java_count >= oci_count && java_count > 0
+          @@JAVA
+        else
+          raise RegexpError, "line does not fit any of the supported stacktraces."
+        end     
       end
 
       ##

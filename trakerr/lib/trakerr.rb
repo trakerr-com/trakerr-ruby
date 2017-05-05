@@ -25,111 +25,111 @@ module Trakerr
   class TrakerrClient
 
     ##API Key
-    attr_accessor :apiKey
+    attr_accessor :api_key
 
     ##App Version of the client the API is tying into.
-    attr_accessor :contextAppVersion
+    attr_accessor :context_app_version
 
     ##Deployment stage of the codebade the API is tying into.
-    attr_accessor :contextDeploymentStage
+    attr_accessor :context_deployment_stage
 
     ##String name of the language being used.
-    attr_accessor :contextEnvLanguage
+    attr_accessor :context_env_language
 
     ##The name of the interpreter
-    attr_accessor :contextEnvName
+    attr_accessor :context_env_name
 
-    ## ContextEnvVersion is the version of the interpreter the program is run on.
-    attr_accessor :contextEnvVersion
+    ## context_env_version is the version of the interpreter the program is run on.
+    attr_accessor :context_env_version
 
-    ## ContextEnvHostname is hostname of the pc running the code.
-    attr_accessor :contextEnvHostname
+    ## context_env_version is hostname of the pc running the code.
+    attr_accessor :context_env_version
 
-    ## ContextAppOS is the OS the program is running on.
-    attr_accessor :contextAppOS
+    ## context_app_os is the OS the program is running on.
+    attr_accessor :context_app_os
 
-    ## ContextAppOSVersion is the version of the OS the code is running on.
-    attr_accessor :contextAppOSVersion
+    ## context_app_os_version is the version of the OS the code is running on.
+    attr_accessor :context_app_os_version
 
-    ## contextAppBrowser is optional MVC and ASP.net applications the browser name the application is running on.
-    attr_accessor :contextAppBrowser
+    ## context_app_browser is optional MVC and ASP.net applications the browser name the application is running on.
+    attr_accessor :context_app_browser
 
-    ## contextAppBrowserVersion is optional for MVC and ASP.net applications the browser version the application is running on.
-    attr_accessor :contextAppBrowserVersion
+    ## context_app_browser_version is optional for MVC and ASP.net applications the browser version the application is running on.
+    attr_accessor :context_app_browser_version
 
-    ## ContextDatacenter is the optional datacenter the code may be running on.
-    attr_accessor :contextDataCenter
+    ## context_data_center is the optional datacenter the code may be running on.
+    attr_accessor :context_data_center
 
-    ## ContextDatacenterRegion is the optional datacenter region the code may be running on.
-    attr_accessor :contextDataCenterRegion
+    ## context_data_center_region is the optional datacenter region the code may be running on.
+    attr_accessor :context_data_center_region
 
     ##
     #Initializes the TrakerrClient class.
-    #apiKey:String: Should be your API key string.
-    #contextAppVersion:String: Should be the version of your application.
-    #contextEnvName:String: Should be the deployment stage of your program.
+    #api_key:String: Should be your API key string.
+    #context_app_version:String: Should be the version of your application.
+    #context_env_name:String: Should be the deployment stage of your program.
     ##
-    def initialize(apiKey,
-                   contextAppVersion="1.0",
-                   contextDeploymentStage="development")
+    def initialize(api_key,
+                   context_app_version="1.0",
+                   context_deployment_stage="development")
 
       default_config = Trakerr::Configuration.default
       default_config.base_path = default_config.base_path
 
-      @apiKey = apiKey
-      @contextAppVersion = contextAppVersion
-      @contextDeploymentStage = contextDeploymentStage
+      @api_key = api_key
+      @context_app_version = context_app_version
+      @context_deployment_stage = context_deployment_stage
 
-      @contextEnvLanguage = "Ruby"
+      @context_env_language = "Ruby"
       
       if RUBY_PLATFORM == "java"
-        @contextEnvName = "jruby"
-        @contextEnvVersion = JRUBY_VERSION
+        @context_env_name = "jruby"
+        @context_env_version = JRUBY_VERSION
       else
-        @contextEnvName = "ruby"
-        @contextEnvVersion = RUBY_VERSION
+        @context_env_name = "ruby"
+        @context_env_version = RUBY_VERSION
       end
 
-      @contextEnvHostname = Socket.gethostname
+      @context_env_version = Socket.gethostname
         
       host_os = RbConfig::CONFIG['host_os']
       case host_os
         when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
           text = `systeminfo`
 
-          @contextAppOS = GetTextFromLine(text, "OS Name:", "\n")
-          @contextAppOS.chomp! if @contextAppOS != nil
-          @contextAppOS.strip! if @contextAppOS != nil
+          @context_app_os = get_text_from_line(text, "OS Name:", "\n")
+          @context_app_os.chomp! if @context_app_os != nil
+          @context_app_os.strip! if @context_app_os != nil
 
-				  version = GetTextFromLine(text, "OS Version:", "\n").split
+				  version = get_text_from_line(text, "OS Version:", "\n").split
           version[0].chomp! if version != nil
           version[0].strip! if version != nil
-          @contextAppOSVersion = contextAppOSVersion || version[0]
+          @context_app_os_version = context_app_os_version || version[0]
 
             
         when /darwin|mac os/
           text = `system_profiler SPSoftwareDataType`
 
-          @contextAppOS = GetTextFromLine(text, "System Version:", "(").chomp.strip
-				  @contextAppOSVersion = contextAppOSVersion || GetTextFromLine(text, "Kernel Version:", "\n").chomp.strip
+          @context_app_os = get_text_from_line(text, "System Version:", "(").chomp.strip
+				  @context_app_os_version = context_app_os_version || get_text_from_line(text, "Kernel Version:", "\n").chomp.strip
             
         when /linux/, /solaris|bsd/
           #uname -s and -r
-          @contextAppOS = `uname -s`.chomp.strip
-          @contextAppOSVersion = contextAppOSVersion || `uname -r`.chomp.strip
+          @context_app_os = `uname -s`.chomp.strip
+          @context_app_os_version = context_app_os_version || `uname -r`.chomp.strip
       end
 
-      if @contextAppOS == nil 
-        @contextAppOS = RbConfig::CONFIG["target_os"]
+      if @context_app_os == nil 
+        @context_app_os = RbConfig::CONFIG["target_os"]
       end
-      if @contextAppOSVersion == nil
-        @contextAppOSVersion = RbConfig::CONFIG['host_os']
+      if @context_app_os_version == nil
+        @context_app_os_version = RbConfig::CONFIG['host_os']
       end
       
-      @contextAppBrowser = contextAppBrowser
-      @contextAppBrowserVersion = contextAppBrowserVersion
-      @contextDataCenter = contextDataCenter
-      @contextDataCenterRegion = contextDataCenterRegion
+      @context_app_browser = context_app_browser
+      @context_app_browser_version = context_app_browser_version
+      @context_data_center = context_data_center
+      @context_data_center_region = context_data_center_region
       api_client = Trakerr::ApiClient.new(default_config)
       @events_api = Trakerr::EventsApi.new(api_client)
     end
@@ -147,14 +147,14 @@ module Trakerr
     #eventMessage:String: String representation of the message of the error.
     #Defaults to err.message if err is an exception, unknown if not.
     ##
-    def CreateAppEvent(err = false, log_level="Error", classification="issue", eventType="unknown", eventMessage="unknown")
+    def create_app_event(err = false, log_level="Error", classification="issue", eventType="unknown", eventMessage="unknown")
       raise ArgumentError, "All non err arguments are expected strings." unless (log_level.is_a? String) && (classification.is_a? String) && (eventType.is_a? String) && (eventMessage.is_a? String)
       if err != false
         raise ArgumentError, "err is expected instance of exception." unless err.is_a? Exception
      
-        eventType = err.class.name if eventType == "unknown"
+        eventType = err.class.name if eventType == "unknown" || eventType == ""
     
-        eventMessage = err.message if eventMessage == "unknown"
+        eventMessage = err.message if eventMessage == "unknown" || eventMessage == ""
 
       end
 
@@ -197,22 +197,22 @@ module Trakerr
       app_event = nil
       if error != false
         raise ArgumentError, "err is expected instance of exception." unless error.is_a? Exception
-        app_event = CreateAppEvent(error, log_level, classification, arg_hash.fetch("evntname", "unknown"), arg_hash.fetch("evntmessage", "unknown"))
+        app_event = create_app_event(error, log_level, classification, arg_hash.fetch("evntname", "unknown"), arg_hash.fetch("evntmessage", "unknown"))
         
       end
-      app_event = CreateAppEvent(false,log_level, classification, arg_hash.fetch("evntname", "unknown"), arg_hash.fetch("evntmessage", "unknown")) if app_event.nil?
+      app_event = create_app_event(false,log_level, classification, arg_hash.fetch("evntname", "unknown"), arg_hash.fetch("evntmessage", "unknown")) if app_event.nil?
       app_event.event_user = arg_hash["user"] if arg_hash.has_key? "user"
       app_event.event_session = arg_hash["session"] if arg_hash.has_key? "session"
 
-      SendEvent(app_event)
+      send_event(app_event)
     end
 
     ##
     #Sends the given AppEvent to Trakerr
     #appEvent:AppEvent: The AppEvent to send.
     ##
-    def SendEvent(appEvent)
-      @events_api.events_post(FillDefaults(appEvent))
+    def send_event(appEvent)
+      @events_api.events_post(fill_defaults(appEvent))
     end
 
     ##
@@ -220,25 +220,25 @@ module Trakerr
     #RETURNS: The AppEvent with Defaults filled.
     #appEvent:AppEvent: The AppEvent to fill.
     ##
-    def FillDefaults(appEvent)
-      appEvent.api_key = appEvent.api_key || @apiKey
+    def fill_defaults(appEvent)
+      appEvent.api_key = appEvent.api_key || @api_key
 
-      appEvent.context_app_version = appEvent.context_app_version || @contextAppVersion
-      appEvent.deployment_stage = appEvent.deployment_stage || @contextDeploymentStage
+      appEvent.context_app_version = appEvent.context_app_version || @context_app_version
+      appEvent.deployment_stage = appEvent.deployment_stage || @context_deployment_stage
 
-      appEvent.context_env_language = appEvent.context_env_language || @contextEnvLanguage
-      appEvent.context_env_name = appEvent.context_env_name || @contextEnvName
-      appEvent.context_env_version = appEvent.context_env_version || @contextEnvVersion
-      appEvent.context_env_hostname = appEvent.context_env_hostname || @contextEnvHostname
+      appEvent.context_env_language = appEvent.context_env_language || @context_env_language
+      appEvent.context_env_name = appEvent.context_env_name || @context_env_name
+      appEvent.context_env_version = appEvent.context_env_version || @context_env_version
+      appEvent.context_env_hostname = appEvent.context_env_hostname || @context_env_version
 
-      appEvent.context_app_os = appEvent.context_app_os || @contextAppOS
-      appEvent.context_app_os_version = appEvent.context_app_os_version || @contextAppOSVersion
+      appEvent.context_app_os = appEvent.context_app_os || @context_app_os
+      appEvent.context_app_os_version = appEvent.context_app_os_version || @context_app_os_version
 
-      appEvent.context_app_browser = appEvent.context_app_browser || @contextAppBrowser
-      appEvent.context_app_browser_version = appEvent.context_app_browser_version || @contextAppBrowserVersion
+      appEvent.context_app_browser = appEvent.context_app_browser || @context_app_browser
+      appEvent.context_app_browser_version = appEvent.context_app_browser_version || @context_app_browser_version
 
-      appEvent.context_data_center = appEvent.context_data_center || @contextDataCenter
-      appEvent.context_data_center_region = appEvent.context_data_center_region || @contextDataCenterRegion
+      appEvent.context_data_center = appEvent.context_data_center || @context_data_center
+      appEvent.context_data_center_region = appEvent.context_data_center_region || @context_data_center_region
 
       appEvent.event_time = DateTime.now.strftime("%Q").to_i
       return appEvent
@@ -253,7 +253,7 @@ module Trakerr
       #prefix:String: The prefix string to start getting the text after
       #suffix:String: The suffix string to find the ending index for.
       ##
-      def GetTextFromLine(text, prefix, suffix)
+      def get_text_from_line(text, prefix, suffix)
         raise ArgumentError, "All arguments are expected strings." unless (text.is_a? String) && (prefix.is_a? String) && (suffix.is_a? String)
       
         prefixindex = text.index(prefix)
