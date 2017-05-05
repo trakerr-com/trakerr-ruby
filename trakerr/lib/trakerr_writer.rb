@@ -3,9 +3,12 @@ require 'event_trace_builder'
 
 module Trakerr
    class TrakerrWriter < StringIO
-       def initialize(apiKey, contextAppVersion="1.0", contextDeploymentStage="development")
+       def initialize(api_key, context_app_version="1.0", context_deployment_stage="development", log_limit = "warn")
            super()
-           @client = Trakerr::TrakerrClient.new(apiKey, contextAppVersion, contextDeploymentStage)
+           @client = Trakerr::TrakerrClient.new(api_key, context_app_version, context_deployment_stage)
+           
+           @log_limit = log_limit.downcase
+           @log_limit.strip!
        end
 
        def write(str)
@@ -45,5 +48,5 @@ module Trakerr
 
             super(str)
        end
-   end 
+   end
 end
