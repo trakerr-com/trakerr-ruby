@@ -25,7 +25,7 @@ Then import the packages:
 require_relative 'trakerr/lib/trakerr_formatter'
 require_relative 'trakerr/lib/trakerr_writer'
 ```
-Finally, the intergration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
+Finally, the integration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
 
 ```ruby
 stream = Trakerr::TrakerrWriter.new(api_key, "2.0", "development")
