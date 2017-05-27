@@ -109,7 +109,7 @@ require 'trakerr/lib/trakerr'
 A trivial case would involve calling `log` for a caught exception.
 ```ruby
 def main()
-    testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
+    testApp = Trakerr::TrakerrClient.new("<api-key>", "Application version number", "deployment type")
     begin
         raise ZeroDivisionError, "Oh no!"
     rescue ZeroDivisionError => exception
@@ -130,7 +130,7 @@ If you want to populate the `AppEvent` fully with custom properties (log only ac
 
 ```ruby
 def main()
-    testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
+    testApp = Trakerr::TrakerrClient.new("<api-key>", "Application version number", "deployment type")
     begin
         raise ArgumentError
     rescue Exception => e
@@ -147,7 +147,7 @@ end
 Trakerr accepts events that aren't errors. To do so, pass false to the CreateAppEvent Exception field to not attach a stacktrace to the event (if you don't need it). Be sure to pass values in to the rest of the parameters since the default values will most likely not be useful for you if you don't have a stacktrace!
 ```ruby
 def main()
-    testApp = Trakerr::TrakerrClient.new("Api key here", "Application version number", "deployment type")
+    testApp = Trakerr::TrakerrClient.new("<api-key>", "Application version number", "deployment type")
     
     #Send a non Exception to Trakerr.
     appev2 = testApp.CreateAppEvent(false, "Info", "User failed auth", "Passwords are different", "User error")
