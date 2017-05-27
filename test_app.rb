@@ -32,7 +32,7 @@ def main()
     stream = Trakerr::TrakerrWriter.new(api_key, "2.0", "development")
 
     rlog = Logger.new(stream)
-
+    #rlog = Logger.new($stdout)
     rlog.formatter = Trakerr::TrakerrFormatter.new
 
     begin
