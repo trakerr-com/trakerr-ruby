@@ -6,6 +6,58 @@ You will need your API key to send events to trakerr.
 ## Requirements.
 Ruby 1.9.3+, git 2.0+, and curl 7.47.0+
 
+
+## 3-minute Integration Guide
+First install [git and curl](#Install-git-and-curl). Once you have that complete, issue the command:
+
+```bash
+gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
+```
+
+or
+
+```bash
+gem install trakerr_client
+```
+
+Then import the packages:
+```ruby
+require_relative 'trakerr/lib/trakerr_formatter'
+require_relative 'trakerr/lib/trakerr_writer'
+```
+Finally, the integration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
+
+```ruby
+stream = Trakerr::TrakerrWriter.new(api_key, "2.0", "development")
+rlog = Logger.new(stream)
+rlog.formatter = Trakerr::TrakerrFormatter.new
+```
+
+Note that the formatter does change the layout of the output to make easier for Trakerr to parse. The layout will be at the bottom. Wherever you use the logger, it will also send it to trakerr. If you want to use the string stream afterwards, you may.
+
+```ruby
+begin
+    raise IOError, "Failed to open file"
+rescue IOError => err
+    rlog.fatal err
+end
+
+stream.rewind
+log = stream.read
+puts log
+```
+
+The layout of the output is as follows
+```
+Severity
+progname
+errormessage (errortype)
+[Stacktrace]
+...
+```
+where the stacktrace can be multiple lines
+
+
 ## Installation & Usage
 ### 1) Install git and curl
 You will need git for the gem to work properly. If you do not have it installed, we recomment installing it from your package manager. You can use your package manager to install it on unix based machines. For machines using apt (ex: Ubuntu)
@@ -25,29 +77,24 @@ For Windows, or if you aren't using a package manager, visit https://git-scm.com
 If you are on Windows, you may also need to install curl and configure your ruby to use it. Trakerr uses typhous to actually send the exception to us. Follow the instructions on the curl website for more information and Typhous's project page to finish setup.
 
 ### 2) gem install
-
 Install [bundler](http://bundler.io/) and then you can issue this command to get the freshest version:
-```sh
+```bash
 gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
 ```
 
 You can also install from ruby gems:
-```sh
+```bash
 gem install trakerr_client
 ```
 for the latest stable release.
-
-Then import the package:
-```ruby
-require 'trakerr/lib/trakerr'
-```
 
 ## Detailed Integration Guide
 
 Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in test_app.rb.
 
 If you would like to generate some quick sample events, you may download test_app.rb and run it from the command line like so:
-```sh
+
+```bash
 ruby test_app.rb <api key here>
 ```
 

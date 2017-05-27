@@ -17,7 +17,10 @@ limitations under the License.
 =end
 
 require 'rubygems'
+require 'logger'
 require_relative 'trakerr/lib/trakerr'
+require_relative 'trakerr/lib/trakerr_formatter'
+require_relative 'trakerr/lib/trakerr_writer'
 
 def main()
     argarr = ARGV
@@ -26,39 +29,60 @@ def main()
     api_key = argarr[0] if argarr.length > 0 and api_key == "<Your API key here>"
 
     testApp = Trakerr::TrakerrClient.new(api_key, "1.0", "development")
+    stream = Trakerr::TrakerrWriter.new(api_key, "2.0", "development")
+
+    rlog = Logger.new(stream)
+    #rlog = Logger.new($stdout)
+    rlog.formatter = Trakerr::TrakerrFormatter.new
+
+    begin
+        raise IOError, "Failed to open file"
+    rescue IOError => err
+        rlog.fatal err
+    end
+
+    #Since we use streams (StringIO) to hook into the ruby logger,
+    #accessing stream after it has finished logging and event is simple.
+    #Rewind the stream, and then read it to extract data to whatever device you wish for.
+    #The example in the comments below prints out to console. The formatter does change how the event is formatted
+    #and the information given as the output to be pertinant and easy to parse by the stream hook, but I could probably write a complex regex for default
+    #if the demand is there.
+    #stream.rewind
+    #log = stream.read
+    #puts log
 
     #Send exception to Trakerr with default values.
     begin
         raise ZeroDivisionError, "Oh no!"
-    rescue ZeroDivisionError => exception
+    rescue ZeroDivisionError => er
         #You can leave the hash empty if you would like to use the default values.
         #We recommend that you supply a user and a session for all events,
         #and supplying an "evntname" and "evntmessage" for non errors.
-        testApp.log({"user"=>"jack@trakerr.io", "session"=>"7"}, exception) 
+        testApp.log({"user"=>"jack@trakerr.io", "session"=>"7"}, er) 
     end
     
     #Get an AppEvent to populate the class with custom data and then send it to Trakerr.
     #Simple custom data can be send through log.
     begin
-        raise ArgumentError
-    rescue ArgumentError => e
-        appev = testApp.CreateAppEvent(e, "Error")
+        raise RegexpError, "Help!"
+    rescue RegexpError => e
+        appev = testApp.create_app_event(e, "Error")
         appev.event_user = "john@trakerr.io"
         appev.event_session = "5"
         appev.context_app_browser = "Chrome"
         appev.context_app_browser_version = "57.x"
 
-        testApp.SendEvent(appev)
+        testApp.send_event(appev)
     end
 
     #Send a non Exception to Trakerr.
-    appev2 = testApp.CreateAppEvent(false, "Info", "User failed auth", "400 err", "User error")
+    appev2 = testApp.create_app_event(false, "Info", "User failed auth", "400 err", "User error")
     appev2.event_user = "jill@trakerr.io"
     appev2.event_session = "3"
     appev2.context_app_browser = "Edge"
     appev2.context_app_browser_version = "40.15063.0.0"
 
-    testApp.SendEvent(appev2)
+    testApp.send_event(appev2)
 
 end
 
