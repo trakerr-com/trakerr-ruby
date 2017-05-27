@@ -105,7 +105,10 @@ Require the package:
 require 'trakerr/lib/trakerr'
 ```
 
-### Option 1: Sending a default error to Trakerr
+### Option 1: Use the logger
+See [above](#3-minute-Integration-Guide) to learn how to integrate with the built in ruby logger.
+
+### Option 2: Sending a default error to Trakerr
 A trivial case would involve calling `log` for a caught exception.
 ```ruby
 def main()
@@ -115,17 +118,17 @@ def main()
     rescue ZeroDivisionError => exception
         #You can leave the hash empty if you would like to use the default values.
         #We recommend that you supply a user and a session for all events,
-        #and supplying an "evntname" and "evntmessage" for non errors.
+        #and supplying an "eventname" and "eventmessage" for non errors.
         testApp.log({"user"=>"jack@trakerr.io", "session"=>"7"}, exception) 
     end
 end
 ```
 
-Along with the `"user"` and `"session"`; the hash can also take `"evntname"` and `"evntmessage"`. Note that these two will be filled in automatically for errors you rescue if you do not provide them, so we suggest giving them for non-errors.
+Along with the `"user"` and `"session"`; the hash can also take `"eventname"` and `"eventmessage"`. Note that these two will be filled in automatically for errors you rescue if you do not provide them, so we suggest giving them for non-errors.
 
 `log` may also take in a log_level and a classification (We recommend you providing this **especially** if you send a warning or below), but will otherwise default all of the AppEvent properties.
 
-### Option 2: Sending an error to Trakerr with Custom Data
+### Option 3: Sending an error to Trakerr with Custom Data
 If you want to populate the `AppEvent` fully with custom properties (log only accepts the minimum set of useful custom properties to utilize Trakerr's rich feature set), you can manually create an `AppEvent` and populate it's fields. Pass it to the `SendEvent` to then send the AppEvent to Trakerr. See the `AppEvent` API for more information on it's properties.
 
 ```ruby
@@ -143,7 +146,7 @@ def main()
 end
 ```
 
-### Option 3: Send a non-exception to Trakerr
+### Option 4: Send a non-exception to Trakerr
 Trakerr accepts events that aren't errors. To do so, pass false to the CreateAppEvent Exception field to not attach a stacktrace to the event (if you don't need it). Be sure to pass values in to the rest of the parameters since the default values will most likely not be useful for you if you don't have a stacktrace!
 ```ruby
 def main()
