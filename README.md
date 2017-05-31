@@ -110,7 +110,6 @@ for the latest stable release.
 Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in test_app.rb.
 
 If you would like to generate some quick sample events, you may download test_app.rb and run it from the command line like so:
-
 ```bash
 ruby test_app.rb <api key here>
 ```
