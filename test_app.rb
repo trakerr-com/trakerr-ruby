@@ -81,6 +81,7 @@ def main()
     appev2.event_session = "3"
     appev2.context_app_browser = "Edge"
     appev2.context_app_browser_version = "40.15063.0.0"
+    appev2.context_operation_time_millis = 5000
 
     testApp.send_event(appev2)
 

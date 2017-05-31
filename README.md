@@ -13,7 +13,6 @@ First install [git and curl](#Install-git-and-curl). Once you have that complete
 ```bash
 gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
 ```
-
 or
 
 ```bash
@@ -25,16 +24,20 @@ Then import the packages:
 require_relative 'trakerr/lib/trakerr_formatter'
 require_relative 'trakerr/lib/trakerr_writer'
 ```
-Finally, the integration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
 
+Finally, the integration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
 ```ruby
-stream = Trakerr::TrakerrWriter.new(api_key, "2.0", "development")
+stream = Trakerr::TrakerrWriter.new("<api_key>", #api key you use for your program
+                                    "2.0", #Version of your app
+                                    "development", #Deployment stage of your app (production, development, ect)
+                                    "error" #log level at which the event and above should send. The log levels mirror that of the logger. (unknown > fatal > error > warn/warning, info > debug).
+                                    true, #Formatter switch. Should be the same value as the true false value passed to TrakerrFormatter.
+                                    nil)#method to parse the stream with. Only is called if the above is set to false.
 rlog = Logger.new(stream)
 rlog.formatter = Trakerr::TrakerrFormatter.new
 ```
 
 Note that the formatter does change the layout of the output to make easier for Trakerr to parse. The layout will be at the bottom. Wherever you use the logger, it will also send it to trakerr. If you want to use the string stream afterwards, you may.
-
 ```ruby
 begin
     raise IOError, "Failed to open file"
@@ -47,16 +50,31 @@ log = stream.read
 puts log
 ```
 
-The layout of the output is as follows
+There are two ways that the stream can configured to read. The first looks as close to the standard ruby log statement as possible that we provide as an out of the box simple formatter:
 ```
-Severity
-progname
-errormessage (errortype)
+severityid, [time] severity progname : msg
 [Stacktrace]
-...
 ```
-where the stacktrace can be multiple lines
+The stacktrace is optional, depending on if the logger is passed an error. You may use your own formatter, but you also need to provide a method to parse it. To enable it, provide the following:
+```ruby
+stream = Trakerr::TrakerrWriter.new("<api_key>",
+                                    "2.0",
+                                    "development",
+                                    "error",
+                                    false,
+                                    method(your_method_here(_str)))
+rlog = Logger.new(stream)
+```
 
+The last parameter expects a method object of which it can call. The method takes in one parameter, which is a string that holds the entire error information (often on multiple lines). The method should return a list formatted as follows
+```ruby
+# loglevel is the string level of the event.
+# classification is the string small descriptor of the event.
+# evname is the string name of the event.
+# evmessage is the string message of the event.
+# stacktrace is an array of strings which contain each line of the stactrace as an element. This should only have the file, message, and line number, not the prog name or other event info.
+[loglevel, classification, evname, evmessage, stacktrace]
+```
 
 ## Installation & Usage
 ### 1) Install git and curl
@@ -89,7 +107,6 @@ gem install trakerr_client
 for the latest stable release.
 
 ## Detailed Integration Guide
-
 Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in test_app.rb.
 
 If you would like to generate some quick sample events, you may download test_app.rb and run it from the command line like so:
@@ -100,7 +117,6 @@ ruby test_app.rb <api key here>
 
 ### Package dependency
 Require the package:
-
 ```ruby
 require 'trakerr/lib/trakerr'
 ```
@@ -190,7 +206,6 @@ Name | Type | Description | Notes
 **contextDataCenterRegion** | **string** | Data center region. | Defaults to `nil`
 
 ## Documentation For Models
-
  - [AppEvent](https://github.com/trakerr-io/trakerr-python/blob/master/generated/docs/AppEvent.md)
 
 ## Author

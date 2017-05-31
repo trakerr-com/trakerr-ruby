@@ -3,12 +3,13 @@ require 'event_trace_builder'
 
 module Trakerr
   class TrakerrWriter < StringIO
-    def initialize(api_key, context_app_version = '1.0', context_deployment_stage = 'development', log_limit = 'warn', standard_format = true)
+    def initialize(api_key, context_app_version = '1.0', context_deployment_stage = 'development', log_limit = 'warn', standard_format = true, parse_function = nil)
       super()
       @client = Trakerr::TrakerrClient.new(api_key, context_app_version, context_deployment_stage)
 
       @log_limit = str2level(log_limit)
       @standard_format = standard_format
+      @parse_function = parse_function
     end
 
     def write(str)
@@ -19,7 +20,7 @@ module Trakerr
       if @standard_format
         loglevel, classification, evname, evmessage, stacktrace = parse_standard(strarray)
       else
-        loglevel, classification, evname, evmessage, stacktrace = parse_custom(strarray)
+        loglevel, classification, evname, evmessage, stacktrace = @parse_function.call(strarray)
       end
 
       if str2level(loglevel) >= @log_limit
@@ -33,37 +34,6 @@ module Trakerr
     end
 
     private
-
-    def parse_custom(_buffer)
-      loglevel = nil
-      classification = nil
-      evname = nil
-      evmessage = nil
-      stacktrace = []
-
-      _buffer.each_index do |i|
-        if i == 0 # TrakerrFormatter dictates severity as the first line.
-          loglevel = _buffered_string[i]
-
-        elsif i == 1 # TrakerrFormatter dictates progname as the second line. This is optional, but will be used as a classification.
-          classification = _buffer[i]
-
-        elsif i == 2 # TrakerrFormatter dictates `message` as the their line. Message is actually the error message AND the name of the error in parenthesis.
-          ob = _buffer[i].match(/(?<message>.*)(?<name>\(.*\))/)
-          evname = ob[:name].gsub(/^\(+|\)+$/, '')
-          evmessage = ob[:message]
-
-        else # All following lines are stacktrace shoved into the buffer automatically if provided.
-          # This is only given if the logger gets an error object,
-          # but I don't believe the TrakerrFormatter has access to it
-
-          stacktrace << _buffer[i]
-        end
-      end
-
-      [loglevel, classification, evname, evmessage, stacktrace]
-   end
-
     def parse_standard(_buffer)
       loglevel = nil
       classification = nil

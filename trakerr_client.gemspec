@@ -51,7 +51,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'autotest-fsevent', '~> 0.2', '>= 0.2.11'
 
   #s.files         = `find *`.split("\n").uniq.sort.select{|f| !f.empty? }
-  #REQUIRES GIT INSTALLED
+  #REQUIRES GIT INSTALLED, works on windows.
   s.files         = `git ls-files`.split("\n").delete_if {|file| file.include? "spec"}
   s.test_files    = `git ls-files`.split("\n").delete_if {|file| not file.include? "spec"}
   s.executables   = []

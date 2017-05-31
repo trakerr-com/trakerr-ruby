@@ -235,7 +235,20 @@ module Trakerr
       appEvent.context_data_center_region = appEvent.context_data_center_region || @context_data_center_region
 
       appEvent.event_time = DateTime.now.strftime('%Q').to_i
-      appEvent
+
+      output = %x(uptime)
+      
+      begin
+        output = %x(uptime)
+        appEvent.context_cpu_percentage = appEvent.context_cpu_percentage || (output.split(" ")[8].tr!(',','').to_f*100).round
+
+        output = %x(free)
+        appEvent.context_memory_percentage = appEvent.context_memory_percentage || ((output.split(" ")[8].to_f/output.split(" ")[7].to_f) * 100).round
+      rescue
+        #fail silently for all standard error here.
+      end 
+
+      appEvent #return appEvent
     end
 
     private
