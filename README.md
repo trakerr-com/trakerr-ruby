@@ -3,15 +3,78 @@ Get your application events and errors to Trakerr via the *Trakerr API*.
 
 You will need your API key to send events to trakerr.
 
-## Overview
-- REST API version: 2.0.0
-- Package (SDK) version: 2.0.0
-
 ## Requirements.
+Ruby 1.9.3+, git 2.0+, and curl 7.47.0+
 
-Ruby 1.9.3+
-and
-git 2.0+
+
+## 3-minute Integration Guide
+First install [git and curl](#Install-git-and-curl). Once you have that complete, issue the command:
+
+```bash
+gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
+```
+or
+
+```bash
+gem install trakerr_client
+```
+
+Then import the packages:
+```ruby
+require_relative 'trakerr/lib/trakerr_formatter'
+require_relative 'trakerr/lib/trakerr_writer'
+```
+
+Finally, the integration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
+```ruby
+stream = Trakerr::TrakerrWriter.new("<api_key>", #api key you use for your program
+                                    "2.0", #Version of your app
+                                    "development", #Deployment stage of your app (production, development, ect)
+                                    "error" #log level at which the event and above should send. The log levels mirror that of the logger. (unknown > fatal > error > warn/warning, info > debug).
+                                    true, #Formatter switch. Should be the same value as the true false value passed to TrakerrFormatter.
+                                    nil)#method to parse the stream with. Only is called if the above is set to false.
+rlog = Logger.new(stream)
+rlog.formatter = Trakerr::TrakerrFormatter.new
+```
+
+Note that the formatter does change the layout of the output to make easier for Trakerr to parse. The layout will be at the bottom. Wherever you use the logger, it will also send it to trakerr. If you want to use the string stream afterwards, you may.
+```ruby
+begin
+    raise IOError, "Failed to open file"
+rescue IOError => err
+    rlog.fatal err
+end
+
+stream.rewind
+log = stream.read
+puts log
+```
+
+There are two ways that the stream can configured to read. The first looks as close to the standard ruby log statement as possible that we provide as an out of the box simple formatter:
+```
+severityid, [time] severity progname : msg
+[Stacktrace]
+```
+The stacktrace is optional, depending on if the logger is passed an error. You may use your own formatter, but you also need to provide a method to parse it. To enable it, provide the following:
+```ruby
+stream = Trakerr::TrakerrWriter.new("<api_key>",
+                                    "2.0",
+                                    "development",
+                                    "error",
+                                    false,
+                                    method(your_method_here(_str)))
+rlog = Logger.new(stream)
+```
+
+The last parameter expects a method object of which it can call. The method takes in one parameter, which is a string that holds the entire error information (often on multiple lines). The method should return a list formatted as follows
+```ruby
+# loglevel is the string level of the event.
+# classification is the string small descriptor of the event.
+# evname is the string name of the event.
+# evmessage is the string message of the event.
+# stacktrace is an array of strings which contain each line of the stactrace as an element. This should only have the file, message, and line number, not the prog name or other event info.
+[loglevel, classification, evname, evmessage, stacktrace]
+```
 
 ## Installation & Usage
 ### 1) Install git and curl
@@ -32,40 +95,35 @@ For Windows, or if you aren't using a package manager, visit https://git-scm.com
 If you are on Windows, you may also need to install curl and configure your ruby to use it. Trakerr uses typhous to actually send the exception to us. Follow the instructions on the curl website for more information and Typhous's project page to finish setup.
 
 ### 2) gem install
-
 Install [bundler](http://bundler.io/) and then you can issue this command to get the freshest version:
-```sh
+```bash
 gem "trakerr_client", :git => "git://github.com/trakerr-io/trakerr-ruby.git"
 ```
 
 You can also install from ruby gems:
-```sh
+```bash
 gem install trakerr_client
 ```
 for the latest stable release.
 
-Then import the package:
-```ruby
-require 'trakerr/lib/trakerr'
-```
-
 ## Detailed Integration Guide
-
 Please follow the [installation procedure](#installation--usage) and you're set to add Trakerr to your project. All of these examples are included in test_app.rb.
 
 If you would like to generate some quick sample events, you may download test_app.rb and run it from the command line like so:
-```sh
-ruby test_app.rb <<api-key>>
+```bash
+ruby test_app.rb <api key here>
 ```
 
 ### Package dependency
 Require the package:
-
 ```ruby
 require 'trakerr/lib/trakerr'
 ```
 
-### Option 1: Sending a default error to Trakerr
+### Option 1: Use the logger
+See [above](#3-minute-Integration-Guide) to learn how to integrate with the built in ruby logger.
+
+### Option 2: Sending a default error to Trakerr
 A trivial case would involve calling `log` for a caught exception.
 ```ruby
 def main()
@@ -75,17 +133,17 @@ def main()
     rescue ZeroDivisionError => exception
         #You can leave the hash empty if you would like to use the default values.
         #We recommend that you supply a user and a session for all events,
-        #and supplying an "evntname" and "evntmessage" for non errors.
+        #and supplying an "eventname" and "eventmessage" for non errors.
         testApp.log({"user"=>"jack@trakerr.io", "session"=>"7"}, exception) 
     end
 end
 ```
 
-Along with the `"user"` and `"session"`; the hash can also take `"evntname"` and `"evntmessage"`. Note that these two will be filled in automatically for errors you rescue if you do not provide them, so we suggest giving them for non-errors.
+Along with the `"user"` and `"session"`; the hash can also take `"eventname"` and `"eventmessage"`. Note that these two will be filled in automatically for errors you rescue if you do not provide them, so we suggest giving them for non-errors.
 
 `log` may also take in a log_level and a classification (We recommend you providing this **especially** if you send a warning or below), but will otherwise default all of the AppEvent properties.
 
-### Option 2: Sending an error to Trakerr with Custom Data
+### Option 3: Sending an error to Trakerr with Custom Data
 If you want to populate the `AppEvent` fully with custom properties (log only accepts the minimum set of useful custom properties to utilize Trakerr's rich feature set), you can manually create an `AppEvent` and populate it's fields. Pass it to the `SendEvent` to then send the AppEvent to Trakerr. See the `AppEvent` API for more information on it's properties.
 
 ```ruby
@@ -103,7 +161,7 @@ def main()
 end
 ```
 
-### Option 3: Send a non-exception to Trakerr
+### Option 4: Send a non-exception to Trakerr
 Trakerr accepts events that aren't errors. To do so, pass false to the CreateAppEvent Exception field to not attach a stacktrace to the event (if you don't need it). Be sure to pass values in to the rest of the parameters since the default values will most likely not be useful for you if you don't have a stacktrace!
 ```ruby
 def main()
@@ -147,7 +205,6 @@ Name | Type | Description | Notes
 **contextDataCenterRegion** | **string** | Data center region. | Defaults to `nil`
 
 ## Documentation For Models
-
  - [AppEvent](https://github.com/trakerr-io/trakerr-python/blob/master/generated/docs/AppEvent.md)
 
 ## Author

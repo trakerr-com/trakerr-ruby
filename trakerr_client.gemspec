@@ -29,7 +29,7 @@ $:.push File.expand_path("../trakerr/lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "trakerr_client"
-  s.version     = "2.0.0"
+  s.version     = "2.1.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Trakerr Dev Team", "Swagger-Codegen"]
   s.email       = [""]
@@ -51,7 +51,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'autotest-fsevent', '~> 0.2', '>= 0.2.11'
 
   #s.files         = `find *`.split("\n").uniq.sort.select{|f| !f.empty? }
-  #REQUIRES GIT INSTALLED
+  #REQUIRES GIT INSTALLED, works on windows.
   s.files         = `git ls-files`.split("\n").delete_if {|file| file.include? "spec"}
   s.test_files    = `git ls-files`.split("\n").delete_if {|file| not file.include? "spec"}
   s.executables   = []
