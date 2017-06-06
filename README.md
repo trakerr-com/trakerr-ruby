@@ -1,13 +1,24 @@
 # Trakerr - Ruby API client
+
 Get your application events and errors to Trakerr via the *Trakerr API*.
 
-You will need your API key to send events to trakerr.
+You can send both errors and non-errors (plain log statements, for example) to Trakerr with this API.
 
 ## Overview
+
+The detailed integration guides are primarily oriented around sending errors or warnings. **Option-3 in the
+detailed integration guide** describes how you could send a non-exception (or any log statement).
+
+A Trakerr *Event* can consist of various parameters as described here in [AppEvent](https://github.com/trakerr-com/trakerr-ruby/blob/master/generated/docs/AppEvent.md).
+Some of these parameters are populated by default and others are optional and can be supplied by you.
+
+Since some of these parameters are common across all event's, the API has the option of setting these on the
+TrakerrClient instance (described towards the bottom) and offers a factory API for creating AppEvent's.
+
 - REST API version: 2.0.0
 - Package (SDK) version: 2.0.0
 
-## Requirements.
+### Requirements.
 
 Ruby 1.9.3+
 and
@@ -15,7 +26,7 @@ git 2.0+
 
 ## Installation & Usage
 ### 1) Install git and curl
-You will need git for the gem to work properly. If you do not have it installed, we recomment installing it from your package manager. You can use your package manager to install it on unix based machines. For machines using apt (ex: Ubuntu)
+You will need git for the gem to work properly. If you do not have it installed, we recommend installing it from your package manager. You can use your package manager to install it on unix based machines. For machines using apt (ex: Ubuntu)
 
 ```bash
 apt install git
@@ -148,7 +159,7 @@ Name | Type | Description | Notes
 
 ## Documentation For Models
 
- - [AppEvent](https://github.com/trakerr-io/trakerr-python/blob/master/generated/docs/AppEvent.md)
+ - [AppEvent](https://github.com/trakerr-com/trakerr-ruby/blob/master/generated/docs/AppEvent.md)
 
 ## Author
 [RM](https://github.com/RMSD)
