@@ -18,6 +18,25 @@ TrakerrClient instance (described towards the bottom) and offers a factory API f
 - REST API version: 2.0.0
 - Package (SDK) version: 2.0.0
 
+### Key AppEvent Properties
+
+#### Log Level, Event Type and Classification
+* **Log Level** This enum specifies the logging level to be used for this event ('debug','info','warning','error' or 'fatal')
+* **Event Type** This defines the type of event or logger name. This is automatically set for errors.
+* **Classification** This is a user settable property that controls how the events are grouped. Defaults to 'Issue'. Set this to a different value to group this event in a different group.
+
+#### Event User, Event Session and Correlation ID
+* **Event User** This is the user that is associated with this event. This can be any user data or could be encrypted if privacy is required.
+* **Event Session** This is any session specific information associated with this event.
+* **Cross App Correlation ID** This is an additional ID that can be used for cross-application correlation of the same event.
+
+#### Operation Time
+* **Operation Time** This property in milliseconds measures the operation time for this specific event.
+
+#### Custom properties and segments
+In addition to the above, you can use custom properties and segments to send custom event, performance data. These
+can then be visualized in Trakerr's dashboards.
+
 ### Requirements.
 
 Ruby 1.9.3+
