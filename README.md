@@ -21,59 +21,22 @@ gem install trakerr_client
 
 Then import the packages:
 ```ruby
-require_relative 'trakerr/lib/trakerr_formatter'
-require_relative 'trakerr/lib/trakerr_writer'
+require_relative 'trakerr_logger.rb'
 ```
 
 Finally, the integration. Trakerr uses a string stream to catch the output of a logger and send it to trakerr. Trakerr afterwards writes the code to the stream, so it's possible to write that data elsewhere as required from the stream.
 ```ruby
-stream = Trakerr::TrakerrWriter.new("<api_key>", #api key you use for your program
-                                    "2.0", #Version of your app
-                                    "development", #Deployment stage of your app (production, development, ect)
-                                    "error" #log level at which the event and above should send. The log levels mirror that of the logger. (unknown > fatal > error > warn/warning, info > debug).
-                                    true, #Formatter switch. Should be the same value as the true false value passed to TrakerrFormatter.
-                                    nil)#method to parse the stream with. Only is called if the above is set to false.
-rlog = Logger.new(stream)
-rlog.formatter = Trakerr::TrakerrFormatter.new
+logger = Trakerr::TrakerrLogger.new(Logger.new(STDOUT))
 ```
-
-Note that the formatter does change the layout of the output to make easier for Trakerr to parse. The layout will be at the bottom. Wherever you use the logger, it will also send it to trakerr. If you want to use the string stream afterwards, you may.
+Simply use the logger as normal afterwards:
 ```ruby
+logger.fatal('oops')
+
+#If you pass an exception into the logger, the backtrace will become more specific.
 begin
-    raise IOError, "Failed to open file"
-rescue IOError => err
-    rlog.fatal err
+rescue StandardError => e
+    logger.fatal(e)
 end
-
-stream.rewind
-log = stream.read
-puts log
-```
-
-There are two ways that the stream can configured to read. The first looks as close to the standard ruby log statement as possible that we provide as an out of the box simple formatter:
-```
-severityid, [time] severity progname : msg
-[Stacktrace]
-```
-The stacktrace is optional, depending on if the logger is passed an error. You may use your own formatter, but you also need to provide a method to parse it. To enable it, provide the following:
-```ruby
-stream = Trakerr::TrakerrWriter.new("<api_key>",
-                                    "2.0",
-                                    "development",
-                                    "error",
-                                    false,
-                                    method(your_method_here(_str)))
-rlog = Logger.new(stream)
-```
-
-The last parameter expects a method object of which it can call. The method takes in one parameter, which is a string that holds the entire error information (often on multiple lines). The method should return a list formatted as follows
-```ruby
-# loglevel is the string level of the event.
-# classification is the string small descriptor of the event.
-# evname is the string name of the event.
-# evmessage is the string message of the event.
-# stacktrace is an array of strings which contain each line of the stactrace as an element. This should only have the file, message, and line number, not the prog name or other event info.
-[loglevel, classification, evname, evmessage, stacktrace]
 ```
 
 ## Installation & Usage

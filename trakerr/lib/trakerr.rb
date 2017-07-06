@@ -10,7 +10,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# WITHOUT WARRANTIES OR CO|| Backtrace.java_exception?(ex)NDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
@@ -78,7 +78,7 @@ module Trakerr
       @context_deployment_stage = context_deployment_stage
 
       @context_env_language = 'Ruby'
-
+|| Backtrace.java_exception?(ex)
       if RUBY_PLATFORM == 'java'
         @context_env_name = 'jruby'
         @context_env_version = JRUBY_VERSION
